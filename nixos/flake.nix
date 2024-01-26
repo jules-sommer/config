@@ -16,7 +16,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, home-manager, nix-colors, ... }@inputs:
     let
       inherit (self) outputs;
 
@@ -24,6 +24,7 @@
       host = "ishot";
       handle = "${user}@${host}";
       homeDir = "/home/${user}";
+      system = "x86_64-linux";
       version = "23.11";
       globalAliases = {
         m = "micro";
@@ -48,7 +49,7 @@
       nixosConfigurations = {
         ishot = nixpkgs.lib.nixosSystem {
           specialArgs = {
-            inherit inputs outputs nix-colors pkgs version user host homeDir
+            inherit inputs outputs pkgs version user host homeDir
               globalAliases;
           };
           # > Our main nixos configuration file <
@@ -61,7 +62,7 @@
       homeConfigurations = {
         handle = home-manager.lib.homeManagerConfiguration {
           extraSpecialArgs = {
-            inherit inputs outputs nix-colors pkgs version user host homeDir
+            inherit inputs outputs pkgs version user host homeDir
               globalAliases;
           };
           # > Our main home-manager configuration file <

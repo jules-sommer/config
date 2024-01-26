@@ -1,6 +1,6 @@
 { inputs, lib, config, pkgs, host, user, version, globalAliases, ... }: {
 
-  imports = [ ./hardware-configuration.nix <home-manager/nixos> ];
+  imports = [ ./hardware-configuration.nix ];
 
   nixpkgs = {
     overlays = [
@@ -57,20 +57,22 @@
   };
 
   # Configure the bootloader
-  boot.loader = {
-    systemd-boot = {
-      enable = true;
-      consoleMode = "auto";
-      editor = false;
-      netbootxyz.enable = true;
-      memtest86.enable = true;
+  boot = {
+    loader = {
+      systemd-boot = {
+        enable = true;
+        consoleMode = "auto";
+        editor = false;
+        netbootxyz.enable = true;
+        memtest86.enable = true;
+      };
+      efi.canTouchEfiVariables = true;
     };
     plymouth = {
       enable = true;
       font =
         "${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Regular.ttf";
     };
-    efi.canTouchEfiVariables = true;
   };
 
   networking.hostName = host;
@@ -162,6 +164,8 @@
       rustup
       cargo
       clippy
+      git
+      gh
       nodejs
       bun
       go
@@ -193,11 +197,11 @@
     };
   };
 
-  programs.nushell = {
-    enable = true;
-    package = pkgs.nushell;
-    shellAliases = globalAliases;
-  };
+  # programs.nushell = {
+  #   enable = true;
+  #   package = pkgs.nushell;
+  #   shellAliases = globalAliases;
+  # };
 
   # programs.hyprland = {
   #   enable = true;
