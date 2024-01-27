@@ -7,6 +7,43 @@
       # If you want to use overlays exported from other flakes:
       # neovim-nightly-overlay.overlays.default
 
+      # Rust toolchain:
+      (pkgs.mkShell rec {
+        buildInputs = with pkgs; [
+          clang
+          # Replace llvmPackages with llvmPackages_X, where X is the latest LLVM version (at the time of writing, 16)
+          llvmPackages_17.bintools
+          rustup
+        ];
+        RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
+        # https://github.com/rust-lang/rust-bindgen#environment-variables
+        LIBCLANG_PATH =
+          pkgs.lib.makeLibraryPath [ pkgs.llvmPackages_latest.libclang.lib ];
+        shellHook = ''
+          export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
+          export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-x86_64-unknown-linux-gnu/bin/
+        '';
+        # Add precompiled library to rustc search path
+        RUSTFLAGS = (builtins.map (a: "-L ${a}/lib") [
+          # add libraries here (e.g. pkgs.libvmi)
+        ]);
+        # Add glibc, clang, glib and other headers to bindgen search path
+        BINDGEN_EXTRA_CLANG_ARGS =
+          # Includes with normal include path
+          (builtins.map (a: ''-I"${a}/include"'') [
+            # add dev libraries here (e.g. pkgs.libvmi.dev)
+            pkgs.glibc.dev
+          ])
+          # Includes with special directory paths
+          ++ [
+            ''
+              -I"${pkgs.llvmPackages_latest.libclang.lib}/lib/clang/${pkgs.llvmPackages_latest.libclang.version}/include"''
+            ''-I"${pkgs.glib.dev}/include/glib-2.0"''
+            "-I${pkgs.glib.out}/lib/glib-2.0/include/"
+          ];
+
+      })
+
       # Inline overlays:
       (final: prev: {
         # Override for using Vscode Insiders edition, basically nightly/unstable release instead
@@ -160,12 +197,45 @@
       broot
       zellij
       rustc
+      nixfmt
       rustfmt
       rustup
       cargo
       clippy
       git
       gh
+      neofetch
+      glibc.dev
+      glib.dev
+      glibc
+      uclibc
+      clang
+      cmake
+      pkg-config
+      gdk-pixbuf
+      atkmm
+      pango
+      gtk3
+      gtkmm3
+      gobject-introspection
+      atk
+      cairo
+      gcc
+      zlib
+      llvmPackages.clang
+      llvmPackages.lld
+      llvmPackages.libclc
+      llvmPackages.llvm
+      llvmPackages_17.libcxxClang
+      llvmPackages_17.libcxxStdenv
+      llvmPackages_17.bintoolsNoLibc
+      llvmPackages_17.clangNoCompilerRtWithLibc
+      llvmPackages_17.clangNoLibc
+      llvmPackages_17.libcxx
+      llvmPackages_17.libcxxabi
+      llvmPackages_17.libclc
+      llvmPackages_17.libunwind
+      llvmPackages_17.compiler-rt-libc
       nodejs
       bun
       go
@@ -178,6 +248,58 @@
       librewolf
       firefox
       vscode
+
+      # Langs
+      python3
+      cmake
+      gnumake
+      ninja
+      gdb
+      ant
+      maven
+      jekyll
+      gcc
+      rustup
+      llvm
+      lld
+      lldb
+
+      # Utils
+      direnv
+      git
+      tree
+      nox
+      htop
+      atool
+      unrar
+      zip
+      unzip
+      ark
+      linuxPackages.perf
+      patchelf
+      aspell
+      aspellDicts.en
+      binutils
+      exfat
+      asciidoctor
+      jumpapp
+
+      # Rust stuff
+      ripgrep
+      eza
+      fd
+      tokei
+      bat
+
+      xorg.xkbcomp
+      xbindkeys
+
+      xorg.xwininfo
+      wget
+      curl
+      xclip
+      zlib
+      ntfs3g
     ];
     # Set the environment variables
     variables = {

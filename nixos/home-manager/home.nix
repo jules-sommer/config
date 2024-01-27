@@ -1,4 +1,4 @@
-{ inputs, lib, config, pkgs, homeDir, globalAliases, ... }: {
+{ inputs, lib, config, pkgs, homeDir, user, version, globalAliases, ... }: {
   # You can import other home-manager modules here
   imports = [ inputs.nix-colors.homeManagerModule ];
 
