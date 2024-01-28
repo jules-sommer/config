@@ -2,7 +2,7 @@
   description = "Your new nix config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -23,7 +23,6 @@
   outputs = { self, nixpkgs, home-manager, fenix, nix-colors, ... }@inputs:
     let
       inherit (self) outputs;
-
       user = "jules";
       host = "ishot";
       handle = "${user}@${host}";
@@ -42,14 +41,14 @@
         nf =
           "neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on";
       };
+
       pkgs = import nixpkgs {
         inherit system;
         config = { allowUnfree = true; };
       };
-
     in {
       packages.x86_64-linux.default =
-        fenix.packages.x86_64-linux.latest.toolchain;
+        fenix.packages.x86_64-linux.minimal.toolchain;
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
@@ -63,6 +62,10 @@
                 "rustc"
                 "rustfmt"
               ])
+              (vscode-with-extensions.override {
+                vscodeExtensions =
+                  [ vscode-extensions.rust-lang.rust-analyzer-nightly ];
+              })
               rust-analyzer-nightly
             ];
           })
@@ -74,10 +77,13 @@
       nixosConfigurations = {
         ishot = nixpkgs.lib.nixosSystem {
           specialArgs = {
-            inherit inputs outputs pkgs version user host homeDir globalAliases;
+            inherit system inputs version user homeDir host globalAliases;
           };
           # > Our main nixos configuration file <
-          modules = [ ./system/configuration.nix ];
+          modules = [
+            ./system/configuration.nix
+            # Rust overlay (source: "https://github.com/oxalica/rust-overlay")
+          ];
         };
       };
 

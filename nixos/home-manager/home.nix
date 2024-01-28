@@ -1,6 +1,6 @@
 { inputs, lib, config, pkgs, homeDir, user, version, globalAliases, ... }: {
   # You can import other home-manager modules here
-  imports = [ inputs.nix-colors.homeManagerModule ];
+  imports = [ inputs.nix-colors.homeManagerModule ./qt-gtk.nix ];
 
   nixpkgs = {
     # You can add overlays here
@@ -34,6 +34,8 @@
     whitesur-icon-theme
     whitesur-gtk-theme
     oh-my-posh
+    discord
+    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
 
     gnomeExtensions.arcmenu
     gnomeExtensions.dash-to-panel
@@ -43,26 +45,12 @@
     gnomeExtensions.tiling-assistant
     gnomeExtensions.tray-icons-reloaded
 
+    ollama
+
     gnome.gnome-tweaks
     gnome-browser-connector
     gnome.gnome-shell-extensions
   ];
-
-  gtk = {
-    iconTheme = {
-      name = "Whitesur-icon-theme";
-      package = pkgs.whitesur-icon-theme;
-    };
-    theme = {
-      name = "Whitesur-gtk-theme";
-      package = pkgs.whitesur-gtk-theme;
-    };
-    cursorTheme = {
-      name = "Bibata-Modern-Ice";
-      package = pkgs.bibata-cursors;
-      size = 36;
-    };
-  };
 
   # wayland.windowManager.hyprland.enable = true;
 
@@ -73,10 +61,60 @@
       configFile.source = "${homeDir}/_dev/.config/nushell/config.nu";
       envFile.source = "${homeDir}/_dev/.config/nushell/env.nu";
       loginFile.source = "${homeDir}/_dev/.config/nushell/login.nu";
-      environmentVariables = { NIXPKGS_ALLOW_UNFREE = "1"; };
-      shellAliases = globalAliases ++ [
+      environmentVariables = {
+        XDG_CONFIG_HOME = "${homeDir}/_dev/.config";
+        NIXPKGS_ALLOW_UNFREE = "1";
+      };
+      shellAliases = [ globalAliases ] ++ [
         # add personal non-sys aliases here
       ];
+    };
+    alacritty = {
+      enable = true;
+      settings = {
+        window = {
+          opacity = 0.85;
+          blur = true;
+          padding = {
+            x = 10;
+            y = 10;
+          };
+          dimensions = {
+            lines = 65;
+            columns = 125;
+          };
+        };
+        font = {
+          size = 12;
+          builtin_box_drawing = true;
+          normal = {
+            family = "JetBrains Mono, monospace";
+            style = "Regular";
+          };
+          bold = {
+            family = "JetBrains Mono, monospace";
+            style = "Bold";
+          };
+          italic = {
+            family = "JetBrains Mono, monospace";
+            style = "Italic";
+          };
+          bold_italic = {
+            family = "JetBrains Mono, monospace";
+            style = "Bold Italic";
+          };
+        };
+        selection = { save_to_clipboard = true; };
+        key_bindings = [{
+          key = "K";
+          mods = "Control";
+          chars = "\\x0c";
+        }];
+      };
+    };
+    starship = {
+      enable = true;
+      package = pkgs.starship;
     };
     # Git Config
     git = {

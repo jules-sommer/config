@@ -1,59 +1,22 @@
-{ inputs, lib, config, pkgs, host, user, version, globalAliases, ... }: {
+{ inputs, lib, config, pkgs, host, user, nixpkgs-mozilla, version, globalAliases
+, ... }: {
 
   imports = [ ./hardware-configuration.nix ];
 
   nixpkgs = {
     overlays = [
       # If you want to use overlays exported from other flakes:
-      # neovim-nightly-overlay.overlays.default
-
-      # Rust toolchain:
-      (pkgs.mkShell rec {
-        buildInputs = with pkgs; [
-          clang
-          # Replace llvmPackages with llvmPackages_X, where X is the latest LLVM version (at the time of writing, 16)
-          llvmPackages_17.bintools
-          rustup
-        ];
-        RUSTC_VERSION = pkgs.lib.readFile ./rust-toolchain;
-        # https://github.com/rust-lang/rust-bindgen#environment-variables
-        LIBCLANG_PATH =
-          pkgs.lib.makeLibraryPath [ pkgs.llvmPackages_latest.libclang.lib ];
-        shellHook = ''
-          export PATH=$PATH:''${CARGO_HOME:-~/.cargo}/bin
-          export PATH=$PATH:''${RUSTUP_HOME:-~/.rustup}/toolchains/$RUSTC_VERSION-x86_64-unknown-linux-gnu/bin/
-        '';
-        # Add precompiled library to rustc search path
-        RUSTFLAGS = (builtins.map (a: "-L ${a}/lib") [
-          # add libraries here (e.g. pkgs.libvmi)
-        ]);
-        # Add glibc, clang, glib and other headers to bindgen search path
-        BINDGEN_EXTRA_CLANG_ARGS =
-          # Includes with normal include path
-          (builtins.map (a: ''-I"${a}/include"'') [
-            # add dev libraries here (e.g. pkgs.libvmi.dev)
-            pkgs.glibc.dev
-          ])
-          # Includes with special directory paths
-          ++ [
-            ''
-              -I"${pkgs.llvmPackages_latest.libclang.lib}/lib/clang/${pkgs.llvmPackages_latest.libclang.version}/include"''
-            ''-I"${pkgs.glib.dev}/include/glib-2.0"''
-            "-I${pkgs.glib.out}/lib/glib-2.0/include/"
-          ];
-
-      })
 
       # Inline overlays:
       (final: prev: {
         # Override for using Vscode Insiders edition, basically nightly/unstable release instead
-        vscode.package =
-          (pkgs.vscode.override { isInsiders = true; }).overrideAttrs
+        vscode-with-extensions =
+          (prev.vscode.override { isInsiders = true; }).overrideAttrs
           (oldAttrs: rec {
             src = (builtins.fetchTarball {
               url =
                 "https://update.code.visualstudio.com/latest/linux-x64/insider";
-              sha256 = "1dajhfsdr55mfnj12clf5apy1d4swr71d3rfwlq2hvvmpxvxsa59";
+              sha256 = "0z3gir3zkswcyxg9l12j5ldhdyb0gvhssvwgal286af63pwj9c66";
             });
             version = "latest";
           });
@@ -75,9 +38,9 @@
 
   # This will additionally add your inputs to the system's legacy channels
   # Making legacy nix commands consistent as well, awesome!
-  nix.nixPath = [ "/etc/nix/path" ];
+  nix.nixPath = [ "/home/jules/.nix-defexpr/channels_root/nixos" ];
   environment.etc = lib.mapAttrs' (name: value: {
-    name = "nix/path/${name}";
+    name = "/home/jules/.nix-defexpr/channels_root/nixos/${name}";
     value.source = value.flake;
   }) config.nix.registry;
 
@@ -196,12 +159,12 @@
       helix
       broot
       zellij
-      rustc
+
       nixfmt
-      rustfmt
-      rustup
-      cargo
-      clippy
+
+      jetbrains-mono
+      (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+
       git
       gh
       neofetch
@@ -215,6 +178,7 @@
       gdk-pixbuf
       atkmm
       pango
+      gtk4
       gtk3
       gtkmm3
       gobject-introspection
@@ -222,10 +186,10 @@
       cairo
       gcc
       zlib
-      llvmPackages.clang
-      llvmPackages.lld
-      llvmPackages.libclc
-      llvmPackages.llvm
+      llvmPackages_17.clang
+      llvmPackages_17.lld
+      llvmPackages_17.libclc
+      llvmPackages_17.llvm
       llvmPackages_17.libcxxClang
       llvmPackages_17.libcxxStdenv
       llvmPackages_17.bintoolsNoLibc
@@ -247,7 +211,11 @@
       nushell
       librewolf
       firefox
-      vscode
+      # vscode
+
+      vscode-with-extensions
+      virtualbox
+      linuxKernel.packages.linux_zen.virtualbox
 
       # Langs
       python3
@@ -259,7 +227,10 @@
       maven
       jekyll
       gcc
-      rustup
+
+      # rustup vscode-extensions.rust-lang.rust-analyzer clippy rustc rustfmt rust-analyzer
+      # rustup cargo
+
       llvm
       lld
       lldb
