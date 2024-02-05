@@ -1,13 +1,20 @@
-{ inputs, lib, config, pkgs, homeDir, user, version, globalAliases, ... }: {
+{ inputs, lib, pkgs, homeDir, env_vars, user, version, globalAliases, theme, ...
+}: {
   # You can import other home-manager modules here
-  imports = [ inputs.nix-colors.homeManagerModule ./qt-gtk.nix ];
+  imports = [
+    inputs.nix-colors.homeManagerModule
+    inputs.hyprland.homeManagerModules.default
+
+    ./qt-gtk.nix
+    ./hyprconf/hypr.nix
+    ./hyprconf/waybar.nix
+    ./hyprconf/sway.nix
+  ];
 
   nixpkgs = {
-    # You can add overlays here
     overlays = [
       # Add overlays here
     ];
-    # Configure your nixpkgs instance
     config = {
       # Disable if you don't want unfree packages
       allowUnfree = true;
@@ -15,6 +22,9 @@
       allowUnfreePredicate = _: true;
     };
   };
+
+  # Set nix-colors theme frome flake's input/variable
+  colorScheme = inputs.nix-colors.colorSchemes."${theme}";
 
   programs.home-manager.enable = true;
   home.username = user;
@@ -25,6 +35,8 @@
     vlc
     monero-gui
     qbittorrent
+    lmms
+    steam
     adementary-theme
     vscode-extensions.catppuccin.catppuccin-vsc
     catppuccin-papirus-folders
@@ -36,6 +48,31 @@
     oh-my-posh
     discord
     (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
+
+    grim
+    slurp
+    sway
+    apt
+
+    dolphin
+    wofi
+    waybar
+    swww
+    swaynotificationcenter
+    rofi-wayland
+    swaylock
+    element-desktop
+    yazi
+
+    swayidle
+    screenkey
+
+    # nixpkgs
+    cachix
+    nil # Nix language server
+    nix-info
+    nixpkgs-fmt
+    nixci
 
     gnomeExtensions.arcmenu
     gnomeExtensions.dash-to-panel
@@ -54,6 +91,13 @@
 
   # wayland.windowManager.hyprland.enable = true;
 
+  dconf.settings = {
+    "org/virt-manager/virt-manager/connections" = {
+      autoconnect = [ "qemu:///system" ];
+      uris = [ "qemu:///system" ];
+    };
+  };
+
   # Configuration for all programs in /home/jules
   programs = {
     # NuShell Config
@@ -61,13 +105,13 @@
       configFile.source = "${homeDir}/_dev/.config/nushell/config.nu";
       envFile.source = "${homeDir}/_dev/.config/nushell/env.nu";
       loginFile.source = "${homeDir}/_dev/.config/nushell/login.nu";
-      environmentVariables = {
-        XDG_CONFIG_HOME = "${homeDir}/_dev/.config";
-        NIXPKGS_ALLOW_UNFREE = "1";
+      environmentVariables = env_vars // {
+        # Add personal environment variables here
       };
-      shellAliases = [ globalAliases ] ++ [
+      shellAliases = globalAliases // {
         # add personal non-sys aliases here
-      ];
+        nf = "neofetch --ascii_distro arch";
+      };
     };
     alacritty = {
       enable = true;
@@ -88,41 +132,40 @@
           size = 12;
           builtin_box_drawing = true;
           normal = {
-            family = "JetBrains Mono, monospace";
+            family = "JetBrains Mono";
             style = "Regular";
           };
           bold = {
-            family = "JetBrains Mono, monospace";
+            family = "JetBrains Mono";
             style = "Bold";
           };
           italic = {
-            family = "JetBrains Mono, monospace";
+            family = "JetBrains Mono";
             style = "Italic";
           };
           bold_italic = {
-            family = "JetBrains Mono, monospace";
+            family = "JetBrains Mono";
             style = "Bold Italic";
           };
         };
         selection = { save_to_clipboard = true; };
-        key_bindings = [{
-          key = "K";
-          mods = "Control";
-          chars = "\\x0c";
-        }];
       };
     };
     starship = {
       enable = true;
       package = pkgs.starship;
     };
-    # Git Config
+
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+
     git = {
       enable = true;
-      userName = "julessommer";
+      userName = "jule-ssommer";
       userEmail = "jules@rcsrc.shop";
     };
-    # broot.enableNushellIntegration = true;
   };
   # Create XDG Dirs
   xdg = {

@@ -2,11 +2,11 @@
   description = "Your new nix config";
 
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-unstable";
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixpkgs.url = "nixpkgs/nixos-unstable";
     # home-manager
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -20,7 +20,8 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, fenix, nix-colors, ... }@inputs:
+  outputs =
+    { self, fenix, nixpkgs, home-manager, hyprland, nix-colors, ... }@inputs:
     let
       inherit (self) outputs;
       user = "jules";
@@ -29,6 +30,8 @@
       homeDir = "/home/${user}";
       system = "x86_64-linux";
       version = "23.11";
+      theme = "gigavolt";
+      waybarStyle = 0; # 0 = default, 1 = hyprland
       globalAliases = {
         m = "micro";
         nano = "micro";
@@ -41,6 +44,25 @@
         nf =
           "neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on";
       };
+      env_vars = {
+        NIXOS_OZONE_WL = "1";
+        NIXPKGS_ALLOW_UNFREE = "1";
+        XDG_CONFIG_HOME = "${homeDir}/_dev/.config";
+        XDG_SESSION_TYPE = "wayland";
+        GDK_BACKEND = "wayland";
+        CLUTTER_BACKEND = "wayland";
+        SDL_VIDEODRIVER = "wayland";
+        POLKIT_BIN =
+          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        XCURSOR_SIZE = "24";
+        XCURSOR_THEME = "Bibata-Modern-Ice";
+        QT_QPA_PLATFORMTHEME = pkgs.lib.mkDefault "qt5ct";
+        QT_QPA_PLATFORM = "wayland";
+        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+        QT_AUTO_SCREEN_SCALE_FACTOR = "1";
+        MOZ_ENABLE_WAYLAND = "1";
+        NIX_PATH = "${homeDir}/.nix-defexpr/channels_root/nixos";
+      };
 
       pkgs = import nixpkgs {
         inherit system;
@@ -50,10 +72,14 @@
       packages.x86_64-linux.default =
         fenix.packages.x86_64-linux.minimal.toolchain;
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+        inherit system;
         modules = [
           ({ pkgs, ... }: {
-            nixpkgs.overlays = [ fenix.overlays.default ];
+            nixpkgs.overlays = [
+              (_: super:
+                let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system};
+                in fenix.overlays.default pkgs pkgs)
+            ];
             environment.systemPackages = with pkgs; [
               (fenix.complete.withComponents [
                 "cargo"
@@ -62,10 +88,11 @@
                 "rustc"
                 "rustfmt"
               ])
-              (vscode-with-extensions.override {
-                vscodeExtensions =
-                  [ vscode-extensions.rust-lang.rust-analyzer-nightly ];
-              })
+              (with pkgs;
+                vscode-with-extensions.override {
+                  vscodeExtensions =
+                    [ vscode-extensions.rust-lang.rust-analyzer-nightly ];
+                })
               rust-analyzer-nightly
             ];
           })
@@ -77,12 +104,14 @@
       nixosConfigurations = {
         ishot = nixpkgs.lib.nixosSystem {
           specialArgs = {
-            inherit system inputs version user homeDir host globalAliases;
+            inherit self env_vars fenix system inputs version user homeDir host
+              globalAliases;
+            inherit (inputs.nix-colors.lib-contrib { inherit pkgs; })
+              gtkThemeFromScheme;
           };
-          # > Our main nixos configuration file <
           modules = [
+            # > Our main nixos configuration file <
             ./system/configuration.nix
-            # Rust overlay (source: "https://github.com/oxalica/rust-overlay")
           ];
         };
       };
@@ -92,9 +121,12 @@
       homeConfigurations = {
         "jules@ishot" = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
+
           extraSpecialArgs = {
-            inherit inputs outputs pkgs version user host homeDir globalAliases;
+            inherit inputs env_vars outputs pkgs version user host homeDir
+              globalAliases waybarStyle theme;
           };
+
           # > Our main home-manager configuration file <
           modules = [ ./home-manager/home.nix ];
         };

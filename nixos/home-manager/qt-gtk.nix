@@ -14,9 +14,10 @@
   gtk = {
     enable = true;
     font = {
-      name = "Ubuntu";
+      name = "JetBrains Mono";
       size = 12;
-      package = pkgs.ubuntu_font_family;
+      package =
+        (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; });
     };
     theme = pkgs.lib.mkDefault {
       name = "WhiteSur-Dark-solid";

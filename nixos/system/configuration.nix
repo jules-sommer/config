@@ -1,5 +1,5 @@
-{ inputs, lib, config, pkgs, host, user, nixpkgs-mozilla, version, globalAliases
-, ... }: {
+{ inputs, lib, config, pkgs, host, env_vars, user, nixpkgs-mozilla, version
+, globalAliases, ... }: {
 
   imports = [ ./hardware-configuration.nix ];
 
@@ -46,6 +46,7 @@
 
   # Configure the Nix package manager
   nix.settings = {
+    warn-dirty = false;
     # Enable flakes and new 'nix' command
     experimental-features = "nix-command flakes";
     # Deduplicate and optimize nix store
@@ -78,6 +79,54 @@
   networking.hostName = host;
   networking.networkmanager.enable = true;
 
+  # NETWORKING TWEAKS
+  # (source: https://github.com/nh2/nixos-configs/blob/master/configuration.nix)
+
+  # Hibernation with ZFS is unsafe; thus disable it.
+  # This is likely the case even if the swap is put on a non-ZFS partition,
+  # because the ZFS code paths do not handle being hibernated properly.
+  # See:
+  # * https://nixos.wiki/wiki/ZFS#Known_issues
+  # * https://github.com/openzfs/zfs/issues/12842
+  # * https://github.com/openzfs/zfs/issues/12843
+  boot.kernelParams = [ "nohibernate" ];
+
+  # Enable BBR congestion control
+  boot.kernelModules = [ "tcp_bbr" ];
+  boot.kernel.sysctl."net.ipv4.tcp_congestion_control" = "bbr";
+  boot.kernel.sysctl."net.core.default_qdisc" =
+    "fq"; # see https://news.ycombinator.com/item?id=14814530
+
+  # Increase TCP window sizes for high-bandwidth WAN connections, assuming
+  # 10 GBit/s Internet over 200ms latency as worst case.
+  #
+  # Choice of value:
+  #     BPP         = 10000 MBit/s / 8 Bit/Byte * 0.2 s = 250 MB
+  #     Buffer size = BPP * 4 (for BBR)                 = 1 GB
+  # Explanation:
+  # * According to http://ce.sc.edu/cyberinfra/workshops/Material/NTP/Lab%208.pdf
+  #   and other sources, "Linux assumes that half of the send/receive TCP buffers
+  #   are used for internal structures", so the "administrator must configure
+  #   the buffer size equals to twice" (2x) the BPP.
+  # * The article's section 1.3 explains that with moderate to high packet loss
+  #   while using BBR congestion control, the factor to choose is 4x.
+  #
+  # Note that the `tcp` options override the `core` options unless `SO_RCVBUF`
+  # is set manually, see:
+  # * https://stackoverflow.com/questions/31546835/tcp-receiving-window-size-higher-than-net-core-rmem-max
+  # * https://bugzilla.kernel.org/show_bug.cgi?id=209327
+  # There is an unanswered question in there about what happens if the `core`
+  # option is larger than the `tcp` option; to avoid uncertainty, we set them
+  # equally.
+  boot.kernel.sysctl."net.core.wmem_max" = 1073741824; # 1 GiB
+  boot.kernel.sysctl."net.core.rmem_max" = 1073741824; # 1 GiB
+  boot.kernel.sysctl."net.ipv4.tcp_rmem" = "4096 87380 1073741824"; # 1 GiB max
+  boot.kernel.sysctl."net.ipv4.tcp_wmem" = "4096 87380 1073741824"; # 1 GiB max
+  # We do not need to adjust `net.ipv4.tcp_mem` (which limits the total
+  # system-wide amount of memory to use for TCP, counted in pages) because
+  # the kernel sets that to a high default of ~9% of system memory, see:
+  # * https://github.com/torvalds/linux/blob/a1d21081a60dfb7fddf4a38b66d9cef603b317a9/net/ipv4/tcp.c#L4116
+
   time.timeZone = "America/Toronto";
   i18n.defaultLocale = "en_CA.UTF-8";
 
@@ -94,24 +143,13 @@
       };
     };
     desktopManager = {
-      gnome.enable = true;
+      gnome.enable = false;
       xterm.enable = false;
     };
   };
 
   services.openssh.enable = true;
   services.fstrim.enable = true;
-
-  # Enable XDG Portal for Hyperland
-  # xdg.portal = {
-  #   enable = true;
-  #   extraPortals = [ pkgs.xdg-desktop-portal-gtk pkgs.xdg-desktop-portal ];
-  #   configPackages = [
-  #     pkgs.xdg-desktop-portal-gtk
-  #     pkgs.xdg-desktop-portal-hyprland
-  #     pkgs.xdg-desktop-portal
-  #   ];
-  # };
 
   # Enable CUPS to print documents.
   services.printing.enable = true;
@@ -135,9 +173,13 @@
   users.users.${user} = {
     isNormalUser = true;
     description = "Jules";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [ "networkmanager" "wheel" "vboxusers" "docker" ];
     useDefaultShell = true;
   };
+
+  virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.guest.enable = true;
+  virtualisation.virtualbox.host.enableExtensionPack = true;
 
   # Theme QT -> GTK
   qt = {
@@ -145,8 +187,6 @@
     platformTheme = "gnome";
     style = "adwaita-dark";
   };
-
-  # hyprland.systemd.enable = true;
 
   ########################################
   ################ USER ##################
@@ -255,6 +295,8 @@
       asciidoctor
       jumpapp
 
+      pkgs.libsForQt5.qt5.qtgraphicaleffects
+
       # Rust stuff
       ripgrep
       eza
@@ -262,8 +304,13 @@
       tokei
       bat
 
+      polkit_gnome
+
       xorg.xkbcomp
       xbindkeys
+
+      libvirt
+      virt-viewer
 
       xorg.xwininfo
       wget
@@ -273,41 +320,77 @@
       ntfs3g
     ];
     # Set the environment variables
-    variables = {
-      NIXOS_OZONE_WL = "1";
-      NIXPKGS_ALLOW_UNFREE = "1";
-      XDG_SESSION_TYPE = "wayland";
-      GDK_BACKEND = "wayland";
-      CLUTTER_BACKEND = "wayland";
-      SDL_VIDEODRIVER = "wayland";
-      XCURSOR_SIZE = "24";
-      XCURSOR_THEME = "Bibata-Modern-Ice";
-      QT_QPA_PLATFORMTHEME = pkgs.lib.mkDefault "qt5ct";
-      QT_QPA_PLATFORM = "wayland";
-      QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-      QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-      MOZ_ENABLE_WAYLAND = "1";
+    variables = env_vars // {
+      # Add system environment variables here
     };
   };
 
-  # programs.nushell = {
-  #   enable = true;
-  #   package = pkgs.nushell;
-  #   shellAliases = globalAliases;
-  # };
+  virtualisation.libvirtd.enable = true;
 
-  # programs.hyprland = {
-  #   enable = true;
-  #   package = pkgs.hyprland;
-  #   xwayland.enable = true;
-  # };
+  systemd = {
+    user.services.polkit-gnome-authentication-agent-1 = {
+      description = "polkit-gnome-authentication-agent-1";
+      wantedBy = [ "graphical-session.target" ];
+      wants = [ "graphical-session.target" ];
+      after = [ "graphical-session.target" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart =
+          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+        Restart = "on-failure";
+        RestartSec = 1;
+        TimeoutStopSec = 10;
+      };
+    };
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
-  programs.mtr.enable = true;
-  programs.gnupg.agent = {
+
+  programs = {
+    mtr.enable = true;
+    gnupg.agent = {
+      enable = true;
+      enableSSHSupport = true;
+    };
+    thunar = { enable = true; };
+    xfconf.enable = true;
+    virt-manager.enable = true;
+    sway.enable = true;
+    hyprland = {
+      enable = true;
+      package = inputs.hyprland.packages.${pkgs.system}.hyprland;
+      xwayland.enable = true;
+    };
+    dconf.enable = true;
+    steam.gamescopeSession.enable = true;
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true;
+      dedicatedServer.openFirewall = true;
+    };
+  };
+
+  programs.thunar.plugins = with pkgs.xfce; [
+    thunar-archive-plugin
+    thunar-volman
+  ];
+
+  services.tumbler.enable = true; # Thumbnail support for images and videos
+
+  xdg.portal = {
     enable = true;
-    enableSSHSupport = true;
+    extraPortals = [ pkgs.xdg-desktop-portal ];
+    configPackages =
+      [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal ];
+  };
+
+  services.gvfs.enable = true;
+  security.polkit.enable = true;
+  security.pam.services.swaylock = {
+    text = ''
+      auth include login
+    '';
   };
 
   # networking.firewall.allowedTCPPorts = [ ... ];
