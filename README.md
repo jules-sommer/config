@@ -6,8 +6,8 @@ This repository contains my custom NixOS configuration files. This is mostly for
 
 - **NuShell by default**: The default shell is set to [NuShell](https://www.nushell.sh/), which is unsurprisingly written in Rust and is very modern and pretty and fun and POSIX non-compliant ( yah girl lives on the edge ).
 - **Rust Development**: The environment is set up for Rust development, with tools like `rustup` and `cargo` pre-installed.
-- **Qt and GTK Themes**: The Qt and GTK themes are configured to my *exact* liking, it runs Wayland and has the beginnings of my switch to Hyprland for tiling window'd goodness - but I am not there yet, had some trouble originally so I stuck back with GNOME/GDM Wayland ( PRs welcome hehe ).
-- **Home Manager**: User-specific configurations and packages are managed by the Home Manager, making it easy to version control and replicate your user environment, or I guess more accurately *my user environment* across multiple machines :)
+- **Hyprland Tiling**: Hyprland is now the default tiling window manager and there is no display manager running on the system and Waybar as a system status bar and nix-colors for theming, it also uses Sway notification center to manage push notifications and Swaylock for auth on login as opposed to TTY login.
+ - **Home Manager**: User-specific configurations and packages are managed by the Home Manager, making it easy to version control and replicate your user environment, or I guess more accurately *my user environment* across multiple machines :)
 
 It is structured as follows:
 
