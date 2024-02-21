@@ -1,0 +1,51 @@
+# Ignore nix build directories
+/result
+/result-*
+/nix-result
+
+# Ignore nix temporary files
+*.nix.tmp
+
+# Ignore editor backup files and swap files
+*~
+.*.swp
+.*.swo
+.*.bak
+.*.tmp
+
+# Ignore OS generated files
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+./Code - Insiders
+
+# Ignore generated and temporary files
+/.env
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
+# Ignore potential private keys, credentials, or config files
+*.pem
+*.key
+*.secret
+config/local*
+
+# Dotfile-specific ignores (adjust according to your dotfiles)
+/.cache
+/.local/share
+/.config/systemd/user/*
+!/.config/systemd/user/*.service
+/.gnupg
+/.ssh
+
+# Ignore specific configuration files that may contain sensitive or personal info
+/.gitconfig.local
+/.npmrc
+/.pypirc
+
