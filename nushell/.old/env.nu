@@ -1,6 +1,8 @@
 # Nushell Environment Config File
 #
-# version = "0.87.0"
+# version = "0.86.0"
+
+$env.PAUSE_HOOK_ENABLED = {|| "true"}
 
 def create_left_prompt [] {
     let home =  $nu.home-path
@@ -85,6 +87,9 @@ $env.ENV_CONVERSIONS = {
     }
 }
 
+$env.EDITOR = "hx";
+$env.VISUAL = "code-insiders";
+
 # Directories to search for scripts when calling source or use
 $env.NU_LIB_DIRS = [
     # FIXME: This default is not implemented in rust code as of 2023-09-06.
@@ -96,14 +101,3 @@ $env.NU_PLUGIN_DIRS = [
     # FIXME: This default is not implemented in rust code as of 2023-09-06.
     ($nu.default-config-dir | path join 'plugins') # add <nushell-config-dir>/plugins
 ]
-
-# To add entries to PATH (on Windows you might use Path), you can use the following pattern:
-$env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.cargo/bin')
-$env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.local/bin')
-
-$env.NIX_PATH = ($env.NIX_PATH  | prepend 'nixpkgs=/home/jules/.nix-defexpr/channels_root/nixos')
-
-$env.NIX_BUILD_TOP = $env.PWD;
-
-mkdir ~/.cache/starship
-starship init nu | save -f ~/.cache/starship/init.nu

@@ -7,6 +7,7 @@
 
     ./qt-gtk.nix
     ./hyprconf/hypr.nix
+    ./hyprconf/rofi.nix
     ./hyprconf/waybar.nix
     ./hyprconf/sway.nix
   ];
@@ -54,6 +55,11 @@
     sway
     apt
 
+    protonvpn-gui
+    protonvpn-cli
+    rye
+    flyctl
+
     dolphin
     wofi
     waybar
@@ -98,6 +104,11 @@
     };
   };
 
+  # Enable the user's custom fonts
+  fonts.fontconfig.enable = true;
+
+  services.lorri.enable = true;
+
   # Configuration for all programs in /home/jules
   programs = {
     # NuShell Config
@@ -132,19 +143,19 @@
           size = 12;
           builtin_box_drawing = true;
           normal = {
-            family = "JetBrains Mono";
+            family = "JetBrains Mono Nerd Font";
             style = "Regular";
           };
           bold = {
-            family = "JetBrains Mono";
+            family = "JetBrains Mono Nerd Font";
             style = "Bold";
           };
           italic = {
-            family = "JetBrains Mono";
+            family = "JetBrains Mono Nerd Font";
             style = "Italic";
           };
           bold_italic = {
-            family = "JetBrains Mono";
+            family = "JetBrains Mono Nerd Font";
             style = "Bold Italic";
           };
         };

@@ -1,6 +1,30 @@
 # Nushell Config File
 #
-# version = "0.87.0"
+# version = "0.86.0"
+
+if not (which fnm | is-empty) {
+  ^fnm env --json | from json | load-env
+  # Checking `Path` for Windows
+  let path = if 'Path' in $env { $env.Path } else { $env.PATH }
+  let node_path = if (sys).host.name == 'Windows' {
+    $"($env.FNM_MULTISHELL_PATH)"
+  } else {
+    $"($env.FNM_MULTISHELL_PATH)/bin"
+  }
+  $env.PATH = ($path | prepend [ $node_path ])
+}
+
+#########################################
+#########################################
+
+# let posh_dir = (brew --prefix oh-my-posh | str trim)
+# let posh_theme = $'($posh_dir)/share/oh-my-posh/themes/'
+# # Change the theme names to: zash/space/robbyrussel/powerline/powerlevel10k_lean/
+# # material/half-life/lambda Or double lines theme: amro/pure/spaceship, etc.
+# # For more [Themes demo](https://ohmyposh.dev/docs/themes)
+# $env.PROMPT_COMMAND = { || oh-my-posh prompt print primary --config $'($posh_theme)/zash.omp.json' }
+# # Optional
+# $env.PROMPT_INDICATOR = $"(ansi y)$> (ansi reset)"
 
 # For more information on defining custom themes, see
 # https://www.nushell.sh/book/coloring_and_theming.html
@@ -50,7 +74,6 @@ let dark_theme = {
     shape_globpattern: cyan_bold
     shape_int: purple_bold
     shape_internalcall: cyan_bold
-    shape_keyword: cyan_bold
     shape_list: cyan_bold
     shape_literal: blue
     shape_match_pattern: green
@@ -77,136 +100,134 @@ let dark_theme = {
 
 # The default config record. This is where much of your global configuration is setup.
 $env.config = {
-    show_banner: false # true or false to enable or disable the welcome banner at startup
-
-    ls: {
-        use_ls_colors: true # use the LS_COLORS environment variable to colorize output
-        clickable_links: true # enable or disable clickable links. Your terminal has to support links.
+  show_banner: false # true or false to enable or disable the welcome banner at startup
+  ls: {
+    use_ls_colors: true # use the LS_COLORS environment variable to colorize output
+    clickable_links: true # enable or disable clickable links. Your terminal has to support links.
+  }
+  rm: {
+    always_trash: false # always act as if -t was given. Can be overridden with -p
+  }
+  table: {
+    mode: with_love # basic, compact, compact_double, light, thin, with_love, rounded, reinforced, heavy, none, other
+    index_mode: always # "always" show indexes, "never" show indexes, "auto" = show indexes when a table has "index" column
+    show_empty: true # show 'empty list' and 'empty record' placeholders for command output
+    padding: { left: 1, right: 1 } # a left right padding of each column in a table
+    trim: {
+      methodology: wrapping # wrapping or truncating
+      wrapping_try_keep_words: true # A strategy used by the 'wrapping' methodology
+      truncating_suffix: "..." # A suffix used by the 'truncating' methodology
     }
+    header_on_separator: false # show header text on separator/border line
+    # abbreviated_row_count: 10 # limit data rows from top and bottom after reaching a set point
+  }
 
-    rm: {
-        always_trash: false # always act as if -t was given. Can be overridden with -p
-    }
+  error_style: "fancy" # "fancy" or "plain" for screen reader-friendly error messages
 
+  # datetime_format determines what a datetime rendered in the shell would look like.
+  # Behavior without this configuration point will be to "humanize" the datetime display,
+  # showing something like "a day ago."
+  datetime_format: {
+    normal: '%a, %d %b %Y %H:%M:%S %z'    # shows up in displays of variables or other datetime's outside of tables
+    table: '%m/%d/%y %I:%M:%S%p'          # generally shows up in tabular outputs such as ls. commenting this out will change it to the default human readable datetime format
+  }
+
+  explore: {
+    status_bar_background: {fg: "#1D1F21", bg: "#C4C9C6"},
+    command_bar_text: {fg: "#C4C9C6"},
+    highlight: {fg: "black", bg: "yellow"},
+    status: {
+      error: {fg: "white", bg: "red"},
+      warn: {}
+      info: {}
+    },
     table: {
-        mode: rounded # basic, compact, compact_double, light, thin, with_love, rounded, reinforced, heavy, none, other
-        index_mode: always # "always" show indexes, "never" show indexes, "auto" = show indexes when a table has "index" column
-        show_empty: true # show 'empty list' and 'empty record' placeholders for command output
-        padding: { left: 1, right: 1 } # a left right padding of each column in a table
-        trim: {
-            methodology: wrapping # wrapping or truncating
-            wrapping_try_keep_words: true # A strategy used by the 'wrapping' methodology
-            truncating_suffix: "..." # A suffix used by the 'truncating' methodology
-        }
-        header_on_separator: false # show header text on separator/border line
-        # abbreviated_row_count: 10 # limit data rows from top and bottom after reaching a set point
+      split_line: {fg: "#404040"},
+      selected_cell: {bg: light_blue},
+      selected_row: {},
+      selected_column: {},
+    },
+  }
+
+  history: {
+    max_size: 100_000 # Session has to be reloaded for this to take effect
+    sync_on_enter: true # Enable to share history between multiple sessions, else you have to close the session to write history to file
+    file_format: "plaintext" # "sqlite" or "plaintext"
+    isolation: false # only available with sqlite file_format. true enables history isolation, false disables it. true will allow the history to be isolated to the current session using up/down arrows. false will allow the history to be shared across all sessions.
+  }
+
+  completions: {
+    case_sensitive: false # set to true to enable case-sensitive completions
+    quick: true    # set this to false to prevent auto-selecting completions when only one remains
+    partial: true    # set this to false to prevent partial filling of the prompt
+    algorithm: "fuzzy"    # prefix or fuzzy
+    external: {
+      enable: true # set to false to prevent nushell looking into $env.PATH to find more suggestions, `false` recommended for WSL users as this look up may be very slow
+      max_results: 20 # setting it lower can improve completion performance at the cost of omitting some options
+      completer: null # check 'carapace_completer' above as an example
     }
+  }
 
-    error_style: "fancy" # "fancy" or "plain" for screen reader-friendly error messages
+  filesize: {
+    metric: true # true => KB, MB, GB (ISO standard), false => KiB, MiB, GiB (Windows standard)
+    format: "auto" # b, kb, kib, mb, mib, gb, gib, tb, tib, pb, pib, eb, eib, auto
+  }
 
-    # datetime_format determines what a datetime rendered in the shell would look like.
-    # Behavior without this configuration point will be to "humanize" the datetime display,
-    # showing something like "a day ago."
-    datetime_format: {
-        # normal: '%a, %d %b %Y %H:%M:%S %z'    # shows up in displays of variables or other datetime's outside of tables
-        # table: '%m/%d/%y %I:%M:%S%p'          # generally shows up in tabular outputs such as ls. commenting this out will change it to the default human readable datetime format
-    }
+  cursor_shape: {
+    emacs: line # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (line is the default)
+    vi_insert: block # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (block is the default)
+    vi_normal: underscore # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (underscore is the default)
+  }
 
-    explore: {
-        status_bar_background: {fg: "#1D1F21", bg: "#C4C9C6"},
-        command_bar_text: {fg: "#C4C9C6"},
-        highlight: {fg: "black", bg: "yellow"},
-        status: {
-            error: {fg: "white", bg: "red"},
-            warn: {}
-            info: {}
-        },
-        table: {
-            split_line: {fg: "#404040"},
-            selected_cell: {bg: light_blue},
-            selected_row: {bg: magenta},
-            selected_column: {},
-        },
-    }
+  color_config: $dark_theme # if you want a more interesting theme, you can replace the empty record with `$dark_theme`, `$light_theme` or another custom record
+  use_grid_icons: true
+  footer_mode: "25" # always, never, number_of_rows, auto
+  float_precision: 2 # the precision for displaying floats in tables
+  buffer_editor: "" # command that will be used to edit the current line buffer with ctrl+o, if unset fallback to $env.EDITOR and $env.VISUAL
+  use_ansi_coloring: true
+  bracketed_paste: true # enable bracketed paste, currently useless on windows
+  edit_mode: emacs # emacs, vi
+  shell_integration: true # enables terminal shell integration. Off by default, as some terminals have issues with this.
+  render_right_prompt_on_last_line: true # true or false to enable or disable right prompt to be rendered on last line of the prompt.
+  use_kitty_protocol: true # enables keyboard enhancement protocol implemented by kitty console, only if your terminal support this
 
-    history: {
-        max_size: 100_000 # Session has to be reloaded for this to take effect
-        sync_on_enter: true # Enable to share history between multiple sessions, else you have to close the session to write history to file
-        file_format: "sqlite" # "sqlite" or "plaintext"
-        isolation: false # only available with sqlite file_format. true enables history isolation, false disables it. true will allow the history to be isolated to the current session using up/down arrows. false will allow the history to be shared across all sessions.
-    }
+  hooks: {
+    pre_prompt: [{ null }] # run before the prompt is shown
+    pre_execution: [{ null }] # run before the repl input is run
+    env_change: {
+      PWD: [{ |before, after|
+      	print before
+      	print after
 
-    completions: {
-        case_sensitive: false # set to true to enable case-sensitive completions
-        quick: true    # set this to false to prevent auto-selecting completions when only one remains
-        partial: true    # set this to false to prevent partial filling of the prompt
-        algorithm: "fuzzy"    # prefix or fuzzy
-        external: {
-            enable: true # set to false to prevent nushell looking into $env.PATH to find more suggestions, `false` recommended for WSL users as this look up may be very slow
-            max_results: 100 # setting it lower can improve completion performance at the cost of omitting some options
-            completer: null # check 'carapace_completer' above as an example
-        }
-    }
+  			# direnv: https://direnv.net/docs/hook.html
+      	if (which direnv | is-empty) {
+      		return
+    		}
 
-    filesize: {
-        metric: true # true => KB, MB, GB (ISO standard), false => KiB, MiB, GiB (Windows standard)
-        format: "auto" # b, kb, kib, mb, mib, gb, gib, tb, tib, pb, pib, eb, eib, auto
-    }
-
-    cursor_shape: {
-        emacs: line # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (line is the default)
-        vi_insert: block # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (block is the default)
-        vi_normal: underscore # block, underscore, line, blink_block, blink_underscore, blink_line, inherit to skip setting cursor shape (underscore is the default)
-    }
-
-    color_config: $dark_theme # if you want a more interesting theme, you can replace the empty record with `$dark_theme`, `$light_theme` or another custom record
-    use_grid_icons: true
-    footer_mode: "25" # always, never, number_of_rows, auto
-    float_precision: 2 # the precision for displaying floats in tables
-    buffer_editor: "" # command that will be used to edit the current line buffer with ctrl+o, if unset fallback to $env.EDITOR and $env.VISUAL
-    use_ansi_coloring: true
-    bracketed_paste: true # enable bracketed paste, currently useless on windows
-    edit_mode: vi # emacs, vi
-    shell_integration: true # enables terminal shell integration. Off by default, as some terminals have issues with this.
-    render_right_prompt_on_last_line: true # true or false to enable or disable right prompt to be rendered on last line of the prompt.
-    use_kitty_protocol: true # enables keyboard enhancement protocol implemented by kitty console, only if your terminal support this
-
-    hooks: {
-        pre_prompt: [{ null }] # run before the prompt is shown
-        pre_execution: [{ null }] # run before the repl input is run
-        env_change: {
-          PWD: [{ |before, after|
-          	print before
-          	print after
-
-      			# direnv: https://direnv.net/docs/hook.html
-          	if (which direnv | is-empty) {
-          		return
-        		}
-
-        		direnv export json | from json | default {} | load-env
+    		direnv export json | from json | default {} | load-env
     
-            let is_node_dir = [.nvmrc .node-version] | path exists | any { |it| $it }
-            if ('FNM_DIR' in $env) and $is_node_dir {
-              fnm --log-level=quiet use # Can also just use "fnm use"  
-            }
-          }]
+        let is_node_dir = [.nvmrc .node-version] | path exists | any { |it| $it }
+        if ('FNM_DIR' in $env) and $is_node_dir {
+          fnm --log-level=quiet use # Can also just use "fnm use"  
         }
-        display_output: "if (term size).columns >= 100 { table -e } else { table }" # run to display the output of a pipeline
-        command_not_found: { null } # return an error message when a command is not found
-      }
+      }]
+    }
+    display_output: "if (term size).columns >= 100 { table -e } else { table }" # run to display the output of a pipeline
+    command_not_found: { null } # return an error message when a command is not found
+  }
+
     menus: [
         # Configuration for default nushell menus
         # Note the lack of source parameter
         {
             name: completion_menu
             only_buffer_difference: false
-            marker: "> "
+            marker: "| "
             type: {
                 layout: columnar
                 columns: 4
                 col_width: 20     # Optional value. If missing all the screen width is used to calculate column width
-                col_padding: 3
+                col_padding: 2
             }
             style: {
                 text: green
@@ -708,12 +729,13 @@ $env.config = {
     ]
 }
 
-neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on
+oh-my-posh init nu --config ~/.poshthemes/mytheme.omp.json
+# source ~/.oh-my-posh.nu
 
-source ~/.config/broot/launcher/nushell/br
+# # squeeldb but for shell history
+# source ~/.local/share/atuin/init.nu
+
+# # better cd command in Rust known as zoxide
 # source ~/.zoxide.nu
-use ~/.cache/starship/init.nu
 
-alias ll = ls -la
-alias nf = neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on
-alias br = broot -hips
+# source /home/julessommer/.config/broot/launcher/nushell/br

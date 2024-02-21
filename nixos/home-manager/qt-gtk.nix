@@ -14,10 +14,9 @@
   gtk = {
     enable = true;
     font = {
-      name = "JetBrains Mono";
+      name = "Ubuntu";
       size = 12;
-      package =
-        (pkgs.nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; });
+      package = pkgs.ubuntu_font_family;
     };
     theme = pkgs.lib.mkDefault {
       name = "WhiteSur-Dark-solid";
@@ -40,8 +39,9 @@
     enable = true;
     platformTheme = "gtk";
     style = {
-      name = "WhiteSur-Dark-solid";
-      package = pkgs.whitesur-gtk-theme;
+      name = "adwaita-dark";
+      package = pkgs.adwaita-qt;
     };
   };
+
 }

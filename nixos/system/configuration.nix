@@ -304,6 +304,8 @@
       tokei
       bat
 
+      rnix-lsp
+
       polkit_gnome
 
       xorg.xkbcomp
@@ -340,6 +342,22 @@
         Restart = "on-failure";
         RestartSec = 1;
         TimeoutStopSec = 10;
+      };
+    };
+  };
+
+  # Fonts
+  fonts = {
+    enableDefaultPackages = true;
+    fontDir.enable = true;
+
+    packages = with pkgs; [ ubuntu_font_family ];
+
+    fontconfig = {
+      defaultFonts = {
+        serif = [ "Ubuntu" ];
+        sansSerif = [ "Ubuntu" ];
+        monospace = [ "JetBrains Mono Nerd Font" ];
       };
     };
   };
