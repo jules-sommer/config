@@ -1,11 +1,17 @@
 {
-  description = "Your new nix config";
+  description = "JulesOS NixOS configuration flake";
 
   inputs = {
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixvim = {
+      url = "github:nix-community/nixvim";
+      # If using a stable channel you can use `url = "github:nix-community/nixvim/nixos-<version>"`
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    inix.url = "github:remi-dupre/pinix";
     helix = {
       url = "github:helix-editor/helix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -26,8 +32,8 @@
     };
   };
 
-  outputs = { self, fenix, nixpkgs, home-manager, helix, hyprland, nix-colors
-    , ... }@inputs:
+  outputs = { self, fenix, nixpkgs, home-manager, nixvim, helix, hyprland
+    , nix-colors, ... }@inputs:
     let
       inherit (self) outputs;
       user = "jules";
@@ -118,6 +124,7 @@
           modules = [
             # > Our main nixos configuration file <
             ./system/configuration.nix
+            ./modules/system_module.nix
             inputs.xremap-flake.nixosModules.default
 
             # > xremap keyboard remapping < 
@@ -174,7 +181,8 @@
           # > Our main home-manager configuration file <
           modules = [
             ./home-manager/home.nix
-
+            ./modules/home_module.nix
+            nixvim.homeManagerModules.nixvim
           ];
         };
       };

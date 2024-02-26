@@ -234,7 +234,6 @@
       glib.dev
       glibc
       uclibc
-      clang
       cmake
       pkg-config
       gdk-pixbuf
@@ -246,25 +245,36 @@
       gobject-introspection
       atk
       cairo
+
+      # langs
+      hexyl
+      binutils
+      clang-tools
+      nixpkgs-fmt
+      shfmt
+      ouch
+      python3.pkgs.black
+      pyright
+      nil
       gcc
       zlib
+      clang
+      lld
+      libclc
+      llvm
       llvmPackages_17.clang
       llvmPackages_17.lld
       llvmPackages_17.libclc
       llvmPackages_17.llvm
-      llvmPackages_17.libcxxClang
-      llvmPackages_17.libcxxStdenv
-      llvmPackages_17.bintoolsNoLibc
-      llvmPackages_17.clangNoCompilerRtWithLibc
-      llvmPackages_17.clangNoLibc
-      llvmPackages_17.libcxx
-      llvmPackages_17.libcxxabi
-      llvmPackages_17.libclc
-      llvmPackages_17.libunwind
-      llvmPackages_17.compiler-rt-libc
       nodejs
       bun
       go
+      rustup
+      strace
+      psmisc
+      glibcLocales
+      gdb
+
       htop
       rustscan
       alacritty
@@ -437,6 +447,12 @@
       enable = true;
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
+    };
+    nix-ld = {
+      enable = true;
+      libraries = with pkgs; [
+        # libs for dyn linked pkgs
+      ];
     };
   };
 

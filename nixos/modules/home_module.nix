@@ -1,6 +1,1 @@
-{ inputs, lib, pkgs, homeDir, ... }: {
-  home.packages = with pkgs;
-    [
-
-    ];
-}
+{ inputs, lib, pkgs, homeDir, ... }: { home.packages = with pkgs; [ floorp ]; }

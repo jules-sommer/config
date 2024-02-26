@@ -34,13 +34,13 @@
   home.stateVersion = version;
   home.packages = with pkgs; [
     firefox
+    qutebrowser
     vlc
     monero-gui
     qbittorrent
     lmms
     steam
     adementary-theme
-    vscode-extensions.catppuccin.catppuccin-vsc
     catppuccin-cursors
     catppuccin
     bibata-cursors
@@ -50,11 +50,20 @@
     pueue
     swayimg
 
+    udisks
+    udiskie
+
+    httpie
+    curlie
+
     runelite
 
     discord-canary
     vesktop
     betterdiscordctl
+
+    # https://lib.rs/crates/pinix
+    pinix
 
     # JetBrains
     jetbrains.rust-rover
@@ -102,6 +111,9 @@
 
     localsend
 
+    # pipewire
+    helvum
+
     youtube-tui
     gitui
 
@@ -117,6 +129,12 @@
 
     sway
     apt
+
+    cargo
+    clippy
+    rustc
+    rustfmt
+    rust-analyzer
 
     github-desktop
     protonvpn-gui
@@ -254,7 +272,23 @@
         selection = { save_to_clipboard = true; };
       };
     };
-
+    nixvim = {
+      enable = true;
+      enableMan = true;
+      colorschemes = {
+        catppuccin = {
+          enable = true;
+          flavour = "mocha";
+        };
+      };
+      plugins.lsp.servers = {
+        rust-analyzer = {
+          enable = true;
+          package = pkgs.rust-analyzer;
+          autostart = true;
+        };
+      };
+    };
     helix = {
       enable = true;
       package = helix.packages."x86_64-linux".default;
