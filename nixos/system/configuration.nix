@@ -1,7 +1,6 @@
-{ inputs, lib, config, pkgs, host, env_vars, user, nixpkgs-mozilla, version
-, globalAliases, ... }: {
+{ inputs, lib, config, pkgs, host, env_vars, user, version, ... }: {
 
-  imports = [ ./hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix ./nvidia_drivers.nix ];
 
   nixpkgs = {
     overlays = [
@@ -25,6 +24,7 @@
     config = {
       # Disable if you don't want unfree packages
       allowUnfree = true;
+      permittedInsecurePackages = [ "electron-25.9.0" ];
     };
   };
 
@@ -45,16 +45,24 @@
   }) config.nix.registry;
 
   # Configure the Nix package manager
-  nix.settings = {
-    warn-dirty = false;
-    # Enable flakes and new 'nix' command
-    experimental-features = "nix-command flakes";
-    # Deduplicate and optimize nix store
-    auto-optimise-store = true;
-    # Use binary caches
-    substituters = [ "https://hyprland.cachix.org" ];
-    trusted-public-keys =
-      [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
+  nix = {
+    settings = {
+      warn-dirty = false;
+      # Enable flakes and new 'nix' command
+      experimental-features = "nix-command flakes";
+      # Deduplicate and optimize nix store
+      auto-optimise-store = true;
+      # Use binary caches
+      substituters = [ "https://hyprland.cachix.org" ];
+      trusted-public-keys = [
+        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      ];
+    };
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
   };
 
   # Configure the bootloader
@@ -90,6 +98,8 @@
   # * https://github.com/openzfs/zfs/issues/12842
   # * https://github.com/openzfs/zfs/issues/12843
   boot.kernelParams = [ "nohibernate" ];
+
+  boot.kernelPackages = pkgs.linuxPackages_latest;
 
   # Enable BBR congestion control
   boot.kernelModules = [ "tcp_bbr" ];
@@ -132,8 +142,10 @@
 
   services.xserver = {
     enable = true;
-    layout = "us";
-    xkbVariant = "";
+    xkb = {
+      layout = "us";
+      variant = "";
+    };
     libinput.enable = true;
     displayManager = {
       lightdm.enable = false;
@@ -172,8 +184,10 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.${user} = {
     isNormalUser = true;
+    homeMode = "755";
+    ignoreShellProgramCheck = true;
     description = "Jules";
-    extraGroups = [ "networkmanager" "wheel" "vboxusers" "docker" ];
+    extraGroups = [ "networkmanager" "wheel" "vboxusers" "docker" "libvirtd" ];
     useDefaultShell = true;
   };
 
@@ -201,9 +215,17 @@
       zellij
 
       nixfmt
+      obsidian
 
       jetbrains-mono
       (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
+
+      grim
+      qt5.qtwayland
+      slurp
+      swaybg
+      wl-clipboard
+      luakit
 
       git
       gh
@@ -253,9 +275,14 @@
       firefox
       # vscode
 
+      jetbrains-mono
+      fira-code
       vscode-with-extensions
+
       virtualbox
       linuxKernel.packages.linux_zen.virtualbox
+      qemu
+      libvirt
 
       # Langs
       python3
@@ -282,6 +309,8 @@
       nox
       htop
       atool
+      busybox
+      psmisc
       unrar
       zip
       unzip
@@ -294,15 +323,33 @@
       exfat
       asciidoctor
       jumpapp
+      swaynotificationcenter
 
       pkgs.libsForQt5.qt5.qtgraphicaleffects
+      font-awesome
 
       # Rust stuff
       ripgrep
+      jq
+      jqp
       eza
       fd
       tokei
       bat
+      poppler
+      ffmpegthumbnailer
+      ffmpeg
+      unar
+      xz
+      jq
+      fd
+      jql
+      jq-lsp
+      zoxide
+
+      grim
+      grimblast
+      slurp
 
       rnix-lsp
 
@@ -323,13 +370,16 @@
     ];
     # Set the environment variables
     variables = env_vars // {
-      # Add system environment variables here
+      FLAKE = "$\${homeDir}/_dev/.config/nixos";
+      POLKIT_BIN =
+        "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
     };
   };
 
   virtualisation.libvirtd.enable = true;
 
   systemd = {
+    services.NetworkManager-wait-online.enable = false;
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";
       wantedBy = [ "graphical-session.target" ];
@@ -351,7 +401,7 @@
     enableDefaultPackages = true;
     fontDir.enable = true;
 
-    packages = with pkgs; [ ubuntu_font_family ];
+    packages = with pkgs; [ ubuntu_font_family jetbrains-mono fira-code ];
 
     fontconfig = {
       defaultFonts = {
@@ -366,6 +416,7 @@
   # started in user sessions.
 
   programs = {
+    wshowkeys.enable = true;
     mtr.enable = true;
     gnupg.agent = {
       enable = true;

@@ -6,6 +6,12 @@
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    helix = {
+      url = "github:helix-editor/helix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # keyboard remapping util
+    xremap-flake.url = "github:xremap/nix-flake";
     nixpkgs.url = "nixpkgs/nixos-unstable";
     # home-manager
     home-manager.url = "github:nix-community/home-manager/master";
@@ -20,8 +26,8 @@
     };
   };
 
-  outputs =
-    { self, fenix, nixpkgs, home-manager, hyprland, nix-colors, ... }@inputs:
+  outputs = { self, fenix, nixpkgs, home-manager, helix, hyprland, nix-colors
+    , ... }@inputs:
     let
       inherit (self) outputs;
       user = "jules";
@@ -31,7 +37,7 @@
       system = "x86_64-linux";
       version = "23.11";
       theme = "gigavolt";
-      waybarStyle = 0; # 0 = default, 1 = hyprland
+      waybarStyle = 0; # 0 = default, 1 = other
       globalAliases = {
         m = "micro";
         nano = "micro";
@@ -100,7 +106,7 @@
       };
 
       # NixOS configuration entrypoint
-      # build w/ `nixos-rebuild --flake .#ishot`
+      # build w/ `nixos-rebuild switch --flake .#ishot`
       nixosConfigurations = {
         ishot = nixpkgs.lib.nixosSystem {
           specialArgs = {
@@ -112,23 +118,64 @@
           modules = [
             # > Our main nixos configuration file <
             ./system/configuration.nix
+            inputs.xremap-flake.nixosModules.default
+
+            # > xremap keyboard remapping < 
+            {
+              services.xremap.withWlroots = true;
+              services.xremap.config = {
+                # Modmap for single key rebinds
+                modmap = [{
+                  name = "Global";
+                  remap = {
+                    "CapsLock" = {
+                      held = "KEY_LEFTALT";
+                      alone = "CapsLock";
+                      alone_timeout_millis = 150;
+                    };
+                  };
+                }];
+
+                # Keymap for key combo rebinds
+                keymap = [
+                  {
+                    name = "Example ctrl-u > pageup rebind";
+                    remap = { "C-Esc" = "PAGEUP"; };
+                  }
+                  {
+                    # Rebind shift+escape to tilda
+                    name = "Shift+Esc > Tilda";
+                    remap = { "SHIFT_L-Esc" = "KEY_GRAVE"; };
+                  }
+                  {
+                    # Rebind shift+escape to tilda
+                    name = "Shift+Esc > Tilda";
+                    remap = { "C_L-SHIFT_L-Esc" = "C-SHIFT-KEY_GRAVE"; };
+                  }
+                ];
+              };
+            }
+
           ];
         };
       };
 
       # Standalone home-manager configuration entrypoint
-      # build w/ `home-manager --flake .#jules@ishot`
+      # build w/ `home-manager switch --flake .#jules@ishot`
       homeConfigurations = {
         "jules@ishot" = home-manager.lib.homeManagerConfiguration {
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
 
           extraSpecialArgs = {
             inherit inputs env_vars outputs pkgs version user host homeDir
-              globalAliases waybarStyle theme;
+              globalAliases waybarStyle theme helix;
           };
 
           # > Our main home-manager configuration file <
-          modules = [ ./home-manager/home.nix ];
+          modules = [
+            ./home-manager/home.nix
+
+          ];
         };
       };
     };

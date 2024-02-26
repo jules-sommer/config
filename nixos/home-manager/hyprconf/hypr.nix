@@ -1,9 +1,12 @@
 { pkgs, config, lib, inputs, ... }:
 
 let
-  theme = config.colorScheme.colors;
+  theme = config.colorScheme.palette;
   hyprplugins = inputs.hyprland-plugins.packages.${pkgs.system};
-
+  get_time = ''
+    #!/bin/sh
+    echo date '+%Y-%m-%d %H:%M:%S'
+  '';
 in with lib; {
   wayland.windowManager.hyprland = {
     enable = true;
@@ -11,9 +14,11 @@ in with lib; {
     systemd.enable = true;
     settings = {
       "$mod" = "ALT";
-      "$terminal" = "alacritty";
-      "$file_manager" = "alacritty -e yazi";
-      "$menu" = "wofi --show drun";
+      "$terminal" = "alacritty -e zellij";
+      "$tui_files" = "alacritty -e yazi";
+      "$gui_files" = "thunar";
+      "$screenshot" = "nu ~/_dev/nu_tools/screenshot.nu";
+      "$menu" = "rofi -show drun";
       "$notifycmd" =
         "notify-send -h string:x-canonical-private-synchronous:hypr-cfg -u low";
       monitor = [ "WL-1,2560x1080@80,0x0,1" ",preferred,auto,1" ];
@@ -42,9 +47,10 @@ in with lib; {
 
       windowrulev2 = [
         "float,class:^(kitty)$,title:^(kitty)$"
-        "nomaximizerequest, class:.*"
         "idleinhibit focus, class:^(mpv)$"
         "idleinhibit fullscreen, class:^(firefox)$"
+        "float,title:^(Extension:)(.*)$"
+        "float,title:^(Sign in)(.*)$"
       ];
       windowrule = [
         "float, ^(steam)$"
@@ -60,8 +66,8 @@ in with lib; {
       exec-once = [
         "hyprpaper"
         "$POLKIT_BIN"
-        # "dbus-update-activation-environment --systemd --all"
-        "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
+        "dbus-update-activation-environment --systemd --all"
+        # "dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         "systemctl --user import-environment QT_QPA_PLATFORMTHEME WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"
         "hyprctl setcursor Bibata-Modern-Ice 24"
         "swww init"
@@ -69,39 +75,57 @@ in with lib; {
         "swaync"
         "swayidle -w timeout 720 'swaylock -f' timeout 800 'hyprctl dispatch dpms off' resume 'hyprctl dispatch dpms on' before-sleep 'swaylock -f -c 000000'"
       ];
-      # ╔═══════════════════════════════════╗
-      # ║ █▀ █░█ █▀█ █▀█ ▀█▀ █▀▀ █░█ ▀█▀ █▀ ║
-      # ║ ▄█ █▀█ █▄█ █▀▄ ░█░ █▄▄ █▄█ ░█░ ▄█ ║
-      # ╚═══════════════════════════════════╝
+
+      # █▀ █░█ █▀█ █▀█ ▀█▀ █▀▀ █░█ ▀█▀ █▀
+      # ▄█ █▀█ █▄█ █▀▄ ░█░ █▄▄ █▄█ ░█░ ▄█
 
       bindm = [ "$mod, mouse:272, movewindow" "$mod, mouse:273, resizewindow" ];
       bind = [
+        # F keypress
         "$mod, F, exec, firefox"
+        "$mod SHIFT, F, togglefloating, "
+        # C keypress
         "$mod, C, killactive, "
+        # M keypress
         "$mod, M, exit, "
+        # W keypress
         "$mod, W, exec, $menu"
-        "$mod, D, exec,swaync-client -rs"
+        "$mod SHIFT, W, exec, $terminal"
+
+        "$mod SHIFT,I,togglesplit"
+
+        "$mod, E, exec, $terminal"
+        "$mod SHIFT, E, exec, $file_manager"
+        "CTRL SHIFT, S, exec, $screenshot"
+        "$mod, D, exec, swaync-client -t"
         # Terminal and Alacritty for $mod + {T, A}
         "$mod, T, exec, $terminal"
-        "$mod, A, exec, $terminal"
+        "$mod SHIFT, T, exec, $terminal"
         # File manager $mod + {F}
-        "$mod, E, exec, $file_manager"
-        "$mod, V, togglefloating, "
-        "$mod, R, exec, rofi -show drun"
         "$mod, P, pseudo, # dwindle"
         "$mod, J, togglesplit, # dwindle"
         "$mod, left, movefocus, l"
         "$mod, right, movefocus, r"
         "$mod, up, movefocus, u"
         "$mod, down, movefocus, d"
-        "$mod SHIFT, S, movetoworkspace, special"
-        "$mod SHIFT, S, movetoworkspace, special:magic"
+        "$mod SHIFT, SPACE, movetoworkspace,special"
+        "$mod, SPACE, togglespecialworkspace"
+
         "$mod SHIFT, mouse_up, workspace, e+1"
         "$mod SHIFT, mouse_down, workspace, e-1"
+        "ALT,Tab,cyclenext"
+        "ALT,Tab,bringactivetotop"
+
         ",XF86AudioRaiseVolume,exec,wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
         ",XF86AudioLowerVolume,exec,wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
         ",XF86MonBrightnessDown,exec,brightnessctl set 5%-"
         ",XF86MonBrightnessUp,exec,brightnessctl set +5"
+        ",XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+        ",XF86AudioPlay, exec, playerctl play-pause"
+        ",XF86AudioPause, exec, playerctl play-pause"
+        ",XF86AudioNext, exec, playerctl next"
+        ",XF86AudioPrev, exec, playerctl previous"
+
         # clipboard manager with wofi
         "$mod SHIFT, V, exec, cliphist list | wofi --dmenu | cliphist decode | wl-copy"
       ] ++ (
@@ -115,13 +139,11 @@ in with lib; {
             "$mod SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}"
           ]) 10));
 
-      # ╔════════════════════════════════════════╗
-      # ║ ▄▀█ █▄░█ █ █▀▄▀█ ▄▀█ ▀█▀ █ █▀█ █▄░█ █▀ ║
-      # ║ █▀█ █░▀█ █ █░▀░█ █▀█ ░█░ █ █▄█ █░▀█ ▄█ ║
-      # ║                                        ║ 
-      # ║ ▄▀█ █▄░█ █▀▄    █▀▄ █▀▀ █▀▀ █▀█ █▀█ █▀ ║
-      # ║ █▀█ █░▀█ █▄▀    █▄▀ ██▄ █▄▄ █▄█ █▀▄ ▄█ ║
-      # ╚════════════════════════════════════════╝
+      # ▄▀█ █▄░█ █ █▀▄▀█ ▄▀█ ▀█▀ █ █▀█ █▄░█ █▀
+      # █▀█ █░▀█ █ █░▀░█ █▀█ ░█░ █ █▄█ █░▀█ ▄█
+      #                                        
+      # ▄▀█ █▄░█ █▀▄    █▀▄ █▀▀ █▀▀ █▀█ █▀█ █▀
+      # █▀█ █░▀█ █▄▀    █▄▀ ██▄ █▄▄ █▄█ █▀▄ ▄█
 
       animations = {
         "enabled" = "yes";

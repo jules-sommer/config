@@ -22,9 +22,9 @@
       name = "WhiteSur-Dark-solid";
       package = pkgs.whitesur-gtk-theme;
     };
-    iconTheme = pkgs.lib.mkDefault {
-      name = "WhiteSur-purple";
-      package = pkgs.whitesur-icon-theme;
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
     };
     cursorTheme = {
       name = "Bibata-Modern-Ice";
@@ -43,5 +43,4 @@
       package = pkgs.adwaita-qt;
     };
   };
-
 }
