@@ -1,8 +1,8 @@
 { pkgs, config, lib, gpuType, ... }:
 
 {
-  services.xserver.videoDrivers = [ "modesetting" ]; # "nvidia" or "nouveau"
-  boot.blacklistedKernelModules = [ "nouveau" ];
+  services.xserver.videoDrivers = [ "nouveau" ]; # "nvidia" or "nouveau"
+  # boot.blacklistedKernelModules = [ "nouveau" ];
   hardware.nvidia = {
     # Modesetting is required.
     modesetting.enable = true;
