@@ -11,11 +11,22 @@
       # If using a stable channel you can use `url = "github:nix-community/nixvim/nixos-<version>"`
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    inix.url = "github:remi-dupre/pinix";
+    pinix.url = "github:remi-dupre/pinix";
     helix = {
       url = "github:helix-editor/helix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Snowfall beautiful-beautiful snowfall utils
+    snowfall-lib = {
+      url = "github:snowfallorg/lib";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # semver for flakes
+    snowfall-thaw = {
+      url = "github:snowfallorg/thaw";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # keyboard remapping util
     xremap-flake.url = "github:xremap/nix-flake";
     nixpkgs.url = "nixpkgs/nixos-unstable";
@@ -32,7 +43,7 @@
     };
   };
 
-  outputs = { self, fenix, nixpkgs, home-manager, nixvim, helix, hyprland
+  outputs = { self, fenix, nixpkgs, pinix, home-manager, nixvim, helix, hyprland
     , nix-colors, ... }@inputs:
     let
       inherit (self) outputs;
@@ -56,6 +67,7 @@
         nf =
           "neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on";
       };
+
       env_vars = {
         NIXOS_OZONE_WL = "1";
         NIXPKGS_ALLOW_UNFREE = "1";
@@ -81,6 +93,7 @@
         config = { allowUnfree = true; };
       };
     in {
+
       packages.x86_64-linux.default =
         fenix.packages.x86_64-linux.minimal.toolchain;
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
@@ -126,7 +139,19 @@
             ./system/configuration.nix
             ./modules/system_module.nix
             inputs.xremap-flake.nixosModules.default
+            inputs.snowfall-lib.mkFlake
+            {
+              inherit inputs;
+              src = ./.;
 
+              overlays = with inputs; [
+                # Use the overlay provided by this thaw.
+                snowfall-thaw.overlays.default
+
+                # There is also a named overlay, though the output is the same.
+                snowfall-thaw.overlays."package/thaw"
+              ];
+            }
             # > xremap keyboard remapping < 
             {
               services.xremap.withWlroots = true;
@@ -175,7 +200,7 @@
 
           extraSpecialArgs = {
             inherit inputs env_vars outputs pkgs version user host homeDir
-              globalAliases waybarStyle theme helix;
+              globalAliases waybarStyle theme helix pinix;
           };
 
           # > Our main home-manager configuration file <

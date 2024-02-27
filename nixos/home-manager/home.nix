@@ -1,5 +1,5 @@
-{ inputs, lib, pkgs, homeDir, helix, env_vars, user, version, globalAliases
-, theme, ... }: {
+{ inputs, pinix, lib, pkgs, homeDir, helix, env_vars, user, version
+, globalAliases, theme, ... }: {
   # You can import other home-manager modules here
   imports = [
     inputs.nix-colors.homeManagerModule

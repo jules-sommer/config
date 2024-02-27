@@ -60,13 +60,17 @@
     };
     gc = {
       automatic = true;
-      dates = "weekly";
+      dates = "daily";
       options = "--delete-older-than 7d";
     };
   };
 
   # Configure the bootloader
   boot = {
+    supportedFilesystems = [ "zfs" ];
+    boot.zfs.forceImportRoot = false;
+    networking.hostId = "bd744803";
+
     loader = {
       systemd-boot = {
         enable = true;
@@ -140,44 +144,65 @@
   time.timeZone = "America/Toronto";
   i18n.defaultLocale = "en_CA.UTF-8";
 
-  services.xserver = {
-    enable = true;
-    xkb = {
-      layout = "us";
-      variant = "";
-    };
-    libinput.enable = true;
-    displayManager = {
-      lightdm.enable = false;
-      gdm = {
-        enable = true;
-        wayland = true;
+  # ---------
+  # SERVICES
+  # ---------
+  services = {
+    xserver = {
+      enable = true;
+      autoRepeatDelay = 200;
+      autoRepeatInterval = 30;
+      autorun = true;
+
+      xkb = {
+        layout = "us";
+        variant = "";
       };
+
+      libinput.enable = true;
+      displayManager = {
+        lightdm.enable = false;
+        gdm = {
+          enable = true;
+          wayland = true;
+        };
+      };
+
+      desktopManager = {
+        gnome.enable = false;
+        xterm.enable = false;
+      };
+
     };
-    desktopManager = {
-      gnome.enable = false;
-      xterm.enable = false;
+
+    # VM Services
+    qemuGuest.enable = true;
+    spice-vdagentd.enable = true;
+    spice-webdavd.enable = true;
+
+    openssh.enable = true;
+    fstrim.enable = true;
+
+    # Enable CUPS to print documents.
+    printing.enable = true;
+
+    pipewire = {
+      enable = true;
+      alsa.enable = true;
+      alsa.support32Bit = true;
+      pulse.enable = true;
+      jack.enable = true; # For JACK app support
     };
+
+    tumbler.enable = true; # Thumbnail support for images and videos
+    gvfs.enable = true;
   };
-
-  services.openssh.enable = true;
-  services.fstrim.enable = true;
-
-  # Enable CUPS to print documents.
-  services.printing.enable = true;
 
   # Enable sound with pipewire.
   sound.enable = false;
   hardware.pulseaudio.enable = false;
   # rtkit is optional but recommended
   security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    #jack.enable = true; # For JACK app support
-  };
 
   users.defaultUserShell = pkgs.nushell;
 
@@ -187,10 +212,14 @@
     homeMode = "755";
     ignoreShellProgramCheck = true;
     description = "Jules";
-    extraGroups = [ "networkmanager" "wheel" "vboxusers" "docker" "libvirtd" ];
+    extraGroups =
+      [ "networkmanager" "wheel" "vboxusers" "docker" "libvirtd" "fuse" ];
+
     useDefaultShell = true;
   };
 
+  virtualisation.docker.enable = true;
+  virtualisation.libvirtd.enable = true;
   virtualisation.virtualbox.host.enable = true;
   virtualisation.virtualbox.guest.enable = true;
   virtualisation.virtualbox.host.enableExtensionPack = true;
@@ -198,8 +227,11 @@
   # Theme QT -> GTK
   qt = {
     enable = true;
-    platformTheme = "gnome";
-    style = "adwaita-dark";
+    platformTheme = "qt5ct";
+    style = {
+      name = "adwaita-dark";
+      package = pkgs.adwaita-qt;
+    };
   };
 
   ########################################
@@ -386,8 +418,6 @@
     };
   };
 
-  virtualisation.libvirtd.enable = true;
-
   systemd = {
     services.NetworkManager-wait-online.enable = false;
     user.services.polkit-gnome-authentication-agent-1 = {
@@ -450,9 +480,10 @@
     };
     nix-ld = {
       enable = true;
-      libraries = with pkgs; [
-        # libs for dyn linked pkgs
-      ];
+      libraries = with pkgs;
+        [
+          # libs for dyn linked pkgs
+        ];
     };
   };
 
@@ -461,8 +492,6 @@
     thunar-volman
   ];
 
-  services.tumbler.enable = true; # Thumbnail support for images and videos
-
   xdg.portal = {
     enable = true;
     extraPortals = [ pkgs.xdg-desktop-portal ];
@@ -470,7 +499,6 @@
       [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal ];
   };
 
-  services.gvfs.enable = true;
   security.polkit.enable = true;
   security.pam.services.swaylock = {
     text = ''
