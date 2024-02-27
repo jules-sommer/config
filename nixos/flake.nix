@@ -16,17 +16,17 @@
       url = "github:helix-editor/helix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # Snowfall beautiful-beautiful snowfall utils
+
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # semver for flakes
+
     snowfall-thaw = {
       url = "github:snowfallorg/thaw";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    nix-software-center.url = "github:snowfallorg/nix-software-center";
     # keyboard remapping util
     xremap-flake.url = "github:xremap/nix-flake";
     nixpkgs.url = "nixpkgs/nixos-unstable";
@@ -44,7 +44,7 @@
   };
 
   outputs = { self, fenix, nixpkgs, pinix, home-manager, nixvim, helix, hyprland
-    , nix-colors, ... }@inputs:
+    , nix-colors, snowfall-lib, snowfall-thaw, ... }@inputs:
     let
       inherit (self) outputs;
       user = "jules";
@@ -99,13 +99,23 @@
       nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
         inherit system;
         modules = [
+
           ({ pkgs, ... }: {
             nixpkgs.overlays = [
               (_: super:
                 let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system};
                 in fenix.overlays.default pkgs pkgs)
+              # Use the overlay provided by this thaw.
+              pkgs.snowfall-thaw.overlays.default
+              # There is also a named overlay, though the output is the same.
+              pkgs.snowfall-thaw.overlays."package/thaw"
+
             ];
+
             environment.systemPackages = with pkgs; [
+              snowfallorg/thaw
+              inputs.nix-software-center.packages.${system}.nix-software-center
+
               (fenix.complete.withComponents [
                 "cargo"
                 "clippy"
@@ -139,19 +149,7 @@
             ./system/configuration.nix
             ./modules/system_module.nix
             inputs.xremap-flake.nixosModules.default
-            inputs.snowfall-lib.mkFlake
-            {
-              inherit inputs;
-              src = ./.;
 
-              overlays = with inputs; [
-                # Use the overlay provided by this thaw.
-                snowfall-thaw.overlays.default
-
-                # There is also a named overlay, though the output is the same.
-                snowfall-thaw.overlays."package/thaw"
-              ];
-            }
             # > xremap keyboard remapping < 
             {
               services.xremap.withWlroots = true;

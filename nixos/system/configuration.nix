@@ -67,9 +67,8 @@
 
   # Configure the bootloader
   boot = {
-    supportedFilesystems = [ "zfs" ];
-    boot.zfs.forceImportRoot = false;
-    networking.hostId = "bd744803";
+    # supportedFilesystems = [ "zfs" ];
+    zfs.forceImportRoot = false;
 
     loader = {
       systemd-boot = {
@@ -90,6 +89,7 @@
 
   networking.hostName = host;
   networking.networkmanager.enable = true;
+  networking.hostId = "bd744803";
 
   # NETWORKING TWEAKS
   # (source: https://github.com/nh2/nixos-configs/blob/master/configuration.nix)
@@ -228,10 +228,7 @@
   qt = {
     enable = true;
     platformTheme = "qt5ct";
-    style = {
-      name = "adwaita-dark";
-      package = pkgs.adwaita-qt;
-    };
+    style = "adwaita-dark";
   };
 
   ########################################

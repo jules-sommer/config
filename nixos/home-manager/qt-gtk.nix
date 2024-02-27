@@ -37,7 +37,7 @@
   # Theme QT -> GTK
   qt = {
     enable = true;
-    platformTheme = "qt5ct";
+    platformTheme = "qtct";
     style = {
       name = "adwaita-dark";
       package = pkgs.adwaita-qt;
