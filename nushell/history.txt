@@ -1760,3 +1760,115 @@ hx config.nu
 ls
 hx config.nu
 ls
+ll
+ls
+cd ..
+ls
+ls -la
+cd .config
+ls
+cd nushell/
+ls
+hx config.nu
+$nu.env-path
+$nu.config-path
+hx /home/jules/_dev/.config/nushell/config.nu
+rusync ~/.config_backup/broot/ ~/.config/broot/
+hx $nu.plugin-path
+home-manager switch --flake .#jules@ishot
+hx /home/jules/.config/yazi/yazi.toml
+rm /home/jules/.config/yazi/yazi.toml
+home-manager switch --flake .#jules@ishot
+nu
+nf
+neofetch
+flake 
+flake test --flake .#jules@ishot
+flake test .#jules@ishot
+flake test .#ishottt
+flake test .#
+ls
+git add .
+git init
+git add .
+flake test .#
+flake show .#
+flake test .#
+flake metadata .#
+flake meta .#
+flake --help
+flake option .#
+flake option
+git
+git commit -m "Initial commit"
+flake test .#
+cd dev
+cd _dev
+cd ~/_dev/
+cd _typescript/
+git clone https://github.com/transitive-bullshit/snapchat?tab=readme-ov-file
+git clone https://github.com/transitive-bullshit/snapchat
+cd snapchat/
+ls
+bun
+bun install
+bun run dev
+bun run
+cd ..
+git clone https://github.com/Aris-t2/CustomJSforFx/tree/master
+git clone https://github.com/Aris-t2/CustomJSforFx
+cd CustomJSforFx/
+thunar
+thunar ./
+ls
+pwd
+flake test .#
+pwd
+pwd | copy
+pwd | wl-copy
+pwd
+git add .
+git add ./lib/default.nix
+git status
+git add flake.nix
+git add homes
+git status
+git add flake.lock
+lazygit
+git add flake.lock
+git status
+nix profile install nixpkgs#lapce
+lapsce
+lapce
+cd dev
+dev ~/_dev/.config/nixos/
+cd ~/_dev/.config/nixos/
+ls
+lapce ./
+which rnix-lsp
+which rnix-lsp | wl-copy
+cd (which rnix-lsp)
+cd | (which rnix-lsp)
+cd /run/current-system/sw/bin/rnix-lsp
+cd /run/current-system/sw/bin/
+;s
+ls
+which nil
+ls
+flake test .#
+flake test .#ishottt
+git add .
+flake test .#ishottt
+git status
+git add .
+flake test .#ishottt
+rg nixpkgs.config
+flake test .#ishottt
+git add .
+flake test .#ishottt
+git add .
+flake test .#ishottt
+git add .
+flake test .#ishottt
+flake test .#ishottt --show-trace
+flake test .#ishottt

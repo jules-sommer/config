@@ -1,41 +1,88 @@
 {
   description = "JulesOS NixOS configuration flake";
-
   inputs = {
+    stable.url = "github:nixos/nixpkgs/nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    pinix.url = "github:remi-dupre/pinix";
     fenix = {
       url = "github:nix-community/fenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
     nixvim = {
       url = "github:nix-community/nixvim";
       # If using a stable channel you can use `url = "github:nix-community/nixvim/nixos-<version>"`
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    pinix.url = "github:remi-dupre/pinix";
+
     helix = {
       url = "github:helix-editor/helix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    icehouse = {
+      url = "github:snowfallorg/icehouse?ref=v1.1.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # GPG default configuration
+    gpg-base-conf = {
+      url = "github:drduh/config";
+      flake = false;
+    };
+
+    bibata-cursors = {
+      url = "github:suchipi/Bibata_Cursor";
+      flake = false;
+    };
+
+    attic = {
+      url = "github:zhaofengli/attic";
+
+      # FIXME: A specific version of Rust is needed right now or
+      # the build fails. Re-enable this after some time has passed.
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Vault Integration
+    vault-service = {
+      url = "github:DeterminateSystems/nixos-vault-service";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Flake Hygiene
+    flake-checker = {
+      url = "github:DeterminateSystems/flake-checker";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    # Source: https://snowfall.org/guides/lib/quickstart/
+    # name must remain for snowfall to function
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    snowfall-thaw = {
+    # Snowfall Flake
+    flake = {
+      url = "github:snowfallorg/flake?ref=v1.3.0";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    thaw = {
       url = "github:snowfallorg/thaw";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-software-center.url = "github:snowfallorg/nix-software-center";
-    # keyboard remapping util
+
     xremap-flake.url = "github:xremap/nix-flake";
-    nixpkgs.url = "nixpkgs/nixos-unstable";
-    # home-manager
+
     home-manager.url = "github:nix-community/home-manager/master";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
-    # nix-colors theming for home-manager
+
     nix-colors.url = "github:misterio77/nix-colors";
-    # hyprwm
+
     hyprland.url = "github:hyprwm/Hyprland";
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
@@ -43,171 +90,49 @@
     };
   };
 
-  outputs = { self, fenix, nixpkgs, pinix, home-manager, nixvim, helix, hyprland
-    , nix-colors, snowfall-lib, snowfall-thaw, ... }@inputs:
+  outputs = inputs:
     let
-      inherit (self) outputs;
-      user = "jules";
-      host = "ishot";
-      handle = "${user}@${host}";
-      homeDir = "/home/${user}";
-      system = "x86_64-linux";
-      version = "23.11";
-      theme = "gigavolt";
-      waybarStyle = 0; # 0 = default, 1 = other
-      globalAliases = {
-        m = "micro";
-        nano = "micro";
-        cpa = "cp -rviup";
-        l = "ls -la";
-        hm = "cd ${homeDir}";
-        dev = "cd ${homeDir}/_dev";
-        z = "zellij";
-        ass = "atuin search -i";
-        nf =
-          "neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on";
-      };
+      test = builtins.trace inputs;
+      lib = inputs.snowfall-lib.mkLib {
+        inherit inputs;
+        src = ./.;
+        snowfall = {
+          # Choose a namespace to use for your flake's packages, library,
+          # and overlays.
+          namespace = "jules";
+          # package-namespace = "uwu_pkgs";
+          root = ./.;
 
-      env_vars = {
-        NIXOS_OZONE_WL = "1";
-        NIXPKGS_ALLOW_UNFREE = "1";
-        XDG_CONFIG_HOME = "${homeDir}/_dev/.config";
-        XDG_SESSION_TYPE = "wayland";
-        GDK_BACKEND = "wayland";
-        CLUTTER_BACKEND = "wayland";
-        SDL_VIDEODRIVER = "wayland";
-        POLKIT_BIN =
-          "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
-        XCURSOR_SIZE = "24";
-        XCURSOR_THEME = "Bibata-Modern-Ice";
-        QT_QPA_PLATFORMTHEME = pkgs.lib.mkDefault "qt5ct";
-        QT_QPA_PLATFORM = "wayland";
-        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-        QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-        MOZ_ENABLE_WAYLAND = "1";
-        NIX_PATH = "${homeDir}/.nix-defexpr/channels_root/nixos";
-      };
-
-      pkgs = import nixpkgs {
-        inherit system;
-        config = { allowUnfree = true; };
-      };
-    in {
-
-      packages.x86_64-linux.default =
-        fenix.packages.x86_64-linux.minimal.toolchain;
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-
-          ({ pkgs, ... }: {
-            nixpkgs.overlays = [
-              (_: super:
-                let pkgs = fenix.inputs.nixpkgs.legacyPackages.${super.system};
-                in fenix.overlays.default pkgs pkgs)
-              # Use the overlay provided by this thaw.
-              pkgs.snowfall-thaw.overlays.default
-              # There is also a named overlay, though the output is the same.
-              pkgs.snowfall-thaw.overlays."package/thaw"
-
-            ];
-
-            environment.systemPackages = with pkgs; [
-              snowfallorg/thaw
-              inputs.nix-software-center.packages.${system}.nix-software-center
-
-              (fenix.complete.withComponents [
-                "cargo"
-                "clippy"
-                "rust-src"
-                "rustc"
-                "rustfmt"
-              ])
-              (with pkgs;
-                vscode-with-extensions.override {
-                  vscodeExtensions =
-                    [ vscode-extensions.rust-lang.rust-analyzer-nightly ];
-                })
-              rust-analyzer-nightly
-            ];
-          })
-        ];
-      };
-
-      # NixOS configuration entrypoint
-      # build w/ `nixos-rebuild switch --flake .#ishot`
-      nixosConfigurations = {
-        ishot = nixpkgs.lib.nixosSystem {
-          specialArgs = {
-            inherit self env_vars fenix system inputs version user homeDir host
-              globalAliases;
-            inherit (inputs.nix-colors.lib-contrib { inherit pkgs; })
-              gtkThemeFromScheme;
+          # Add flake metadata that can be processed by tools like Snowfall Frost.
+          meta = {
+            # A slug to use in documentation when displaying things like file paths.
+            name = "jules-ishottt";
+            # A title to show for your flake, typically the name.
+            title = "JulesOS (jules@ishottt) Sys Flake";
           };
-          modules = [
-            # > Our main nixos configuration file <
-            ./system/configuration.nix
-            ./modules/system_module.nix
-            inputs.xremap-flake.nixosModules.default
-
-            # > xremap keyboard remapping < 
-            {
-              services.xremap.withWlroots = true;
-              services.xremap.config = {
-                # Modmap for single key rebinds
-                modmap = [{
-                  name = "Global";
-                  remap = {
-                    "CapsLock" = {
-                      held = "KEY_LEFTALT";
-                      alone = "CapsLock";
-                      alone_timeout_millis = 150;
-                    };
-                  };
-                }];
-
-                # Keymap for key combo rebinds
-                keymap = [
-                  {
-                    name = "Example ctrl-u > pageup rebind";
-                    remap = { "C-Esc" = "PAGEUP"; };
-                  }
-                  {
-                    # Rebind shift+escape to tilda
-                    name = "Shift+Esc > Tilda";
-                    remap = { "SHIFT_L-Esc" = "KEY_GRAVE"; };
-                  }
-                  {
-                    # Rebind shift+escape to tilda
-                    name = "Shift+Esc > Tilda";
-                    remap = { "C_L-SHIFT_L-Esc" = "C-SHIFT-KEY_GRAVE"; };
-                  }
-                ];
-              };
-            }
-
-          ];
         };
       };
+    in lib.mkFlake {
+      channels-config = { allowUnfree = true; };
 
-      # Standalone home-manager configuration entrypoint
-      # build w/ `home-manager switch --flake .#jules@ishot`
-      homeConfigurations = {
-        "jules@ishot" = home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      overlays = with inputs; [
+        fenix.overlays.default
+        # neovim.overlays.default
+        # tmux.overlay
+        flake.overlays.default
+        thaw.overlays.default
+        # cowsay.overlays.default
+        icehouse.overlays.default
+        attic.overlays.default
+      ];
 
-          extraSpecialArgs = {
-            inherit inputs env_vars outputs pkgs version user host homeDir
-              globalAliases waybarStyle theme helix pinix;
-          };
+      home.modules = with inputs; [ nixvim.homeManagerModules.nixvim ];
 
-          # > Our main home-manager configuration file <
-          modules = [
-            ./home-manager/home.nix
-            ./modules/home_module.nix
-            nixvim.homeManagerModules.nixvim
-          ];
-        };
-      };
+      systems.modules.nixos = with inputs; [
+        home-manager.nixosModules.home-manager
+        nixvim.nixosModules.nixvim
+        xremap-flake.nixosModules.default
+
+      ];
     };
 }

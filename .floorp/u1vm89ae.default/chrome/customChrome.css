@@ -1,0 +1,62 @@
+.tabbrowser-tab {
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  justify-self: center !important;
+
+  min-height: min-content !important;
+  height: min-content !important;
+
+  margin: 0 !important;
+
+}
+
+.tabbrowser-tab .tab-content {
+  padding: 0 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.tab-close-button.close-icon {
+  background: rgba(197, 9, 125, 0.902) !important;
+  color: whitesmoke !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  border-radius: 2rem !important;
+}
+
+.tab-close-button.close-icon:focus {
+  background: rgb(255, 66, 167) !important;
+  color: rgba(245, 245, 245, 0.828) !important;
+  transform: scale(1.1) !important;
+}
+
+:root:-moz-window-inactive .tab-close-button:not(#hack) {
+  opacity: .60 !important;
+  background-color: #f45;
+
+}
+
+/* use mask */
+.squircle-mask {
+  width: 200px;
+  height: 200px;
+  background: linear-gradient(45deg, yellow, blue);
+  --squircle-smooth: 1;
+  --squircle-radius: 10px;
+  mask-image: paint(squircle);
+}
+
+/* use background */
+.squircle-bg {
+  width: 200px;
+  height: 200px;
+  background: paint(squircle);
+  --squircle-smooth: 1;
+  --squircle-radius: 10px;
+  --squircle-fill: #f45;
+}
