@@ -18,7 +18,6 @@ systems, # An attribute map of your defined hosts.
 # All other arguments come from the module system.
 config, ... }:
 with lib.jules; {
-
   networking.hostName = settings.host;
   networking.networkmanager.enable = true;
   networking.hostId = "bd744803";
@@ -75,5 +74,4 @@ with lib.jules; {
 
   time.timeZone = "America/Toronto";
   i18n.defaultLocale = "en_CA.UTF-8";
-
 }

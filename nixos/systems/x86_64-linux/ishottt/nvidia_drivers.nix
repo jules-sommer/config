@@ -1,8 +1,15 @@
 { pkgs, config, lib, gpuType, ... }:
 
 {
-  services.xserver.videoDrivers = [ "nouveau" ]; # "nvidia" or "nouveau"
-  # boot.blacklistedKernelModules = [ "nouveau" ];
+  # Enable OpenGL
+  hardware.opengl = {
+    enable = true;
+    driSupport = true;
+    driSupport32Bit = true;
+  };
+
+  services.xserver.videoDrivers = [ "nvidia" ]; # "nvidia" or "nouveau"
+  boot.blacklistedKernelModules = [ "nouveau" ];
   hardware.nvidia = {
     # Modesetting is required.
     modesetting.enable = true;
@@ -23,6 +30,6 @@
     # accessible via `nvidia-settings`.
     nvidiaSettings = true;
     # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.beta;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 }

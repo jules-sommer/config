@@ -20,109 +20,6 @@ with lib.jules; {
   home.username = settings.user;
   home.homeDirectory = settings.home;
   home.stateVersion = settings.version;
-  home.packages = with pkgs; [
-    # Web Browsers and Internet Tools
-    firefox
-    qutebrowser
-    httpie
-    curlie
-    tor-browser
-    torsocks
-    tor
-    runelite
-
-    # Media and Entertainment
-    vlc
-    lmms
-    steam
-    obs-do
-    obs-cli
-    signal-export
-    signal-desktop
-    signalbackup-tools
-
-    # Themes and Customization
-    adementary-theme
-    catppuccin-cursors
-    catppuccin
-    bibata-cursors
-    whitesur-icon-theme
-    whitesur-gtk-theme
-
-    # Productivity and Utilities
-    oh-my-posh
-    pueue
-    swayimg
-    udisks
-    udiskie
-    woeusb
-    ventoy-full
-    unetbootin
-    vmware-workstation
-    appimage-run
-    appimagekit
-    localsend
-    helvum
-    youtube-tui
-    gitui
-    grim
-    slurp
-    sox
-    jetbrains-mono
-    fira-code
-    (nerdfonts.override { fonts = [ "JetBrainsMono" "FiraCode" ]; })
-
-    # Development Tools
-    jetbrains.rust-rover
-    jetbrains.pycharm-community
-    jetbrains.pycharm-professional
-    jetbrains.goland
-    jetbrains.clion
-    qt5.full
-    cargo
-    clippy
-    rustc
-    rustfmt
-    rust-analyzer
-    github-desktop
-    protonvpn-gui
-    protonvpn-cli
-    rye
-    flyctl
-
-    # Window Managers and Desktop Environments
-    sway
-    apt
-    dolphin
-    wofi
-    waybar
-    swww
-    swaynotificationcenter
-    rofi-wayland
-    swaylock
-    element-desktop
-    yazi
-    discord-canary
-    swayidle
-    screenkey
-
-    # Nix and System Tools
-    (pkgs.wrapOBS {
-      plugins = with pkgs.obs-studio-plugins; [
-        wlrobs
-        input-overlay
-        waveform
-        obs-websocket
-      ];
-    })
-
-    cachix
-    nil
-    nix-info
-    nixpkgs-fmt
-    nixci
-    ollama
-  ];
 
   # wayland.windowManager.hyprland.enable = true;
 
@@ -230,23 +127,7 @@ with lib.jules; {
         selection = { save_to_clipboard = true; };
       };
     };
-    # nixvim = {
-    #   enable = true;
-    #   enableMan = true;
-    #   colorschemes = {
-    #     catppuccin = {
-    #       enable = true;
-    #       flavour = "mocha";
-    #     };
-    #   };
-    #   plugins.lsp.servers = {
-    #     rust-analyzer = {
-    #       enable = true;
-    #       package = pkgs.rust-analyzer;
-    #       autostart = true;
-    #     };
-    #   };
-    # };
+
     helix = {
       enable = true;
       package = inputs.helix.packages."x86_64-linux".default;

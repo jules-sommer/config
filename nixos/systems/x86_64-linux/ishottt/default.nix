@@ -62,6 +62,7 @@ with lib.jules; {
       libinput.enable = true;
       displayManager = {
         lightdm.enable = false;
+        defaultSession = "hyprland";
         gdm = {
           enable = true;
           wayland = true;
@@ -138,7 +139,7 @@ with lib.jules; {
   environment = {
     systemPackages = with pkgs; [
       micro
-      home-manager
+      # home-manager
       helix
       broot
       zellij

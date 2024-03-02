@@ -12,17 +12,11 @@
 
     nixvim = {
       url = "github:nix-community/nixvim";
-      # If using a stable channel you can use `url = "github:nix-community/nixvim/nixos-<version>"`
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     helix = {
       url = "github:helix-editor/helix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    icehouse = {
-      url = "github:snowfallorg/icehouse?ref=v1.1.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -66,7 +60,12 @@
 
     # Snowfall Flake
     flake = {
-      url = "github:snowfallorg/flake?ref=v1.3.0";
+      url = "github:snowfallorg/flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    icehouse = {
+      url = "github:snowfallorg/icehouse";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -78,7 +77,7 @@
 
     xremap-flake.url = "github:xremap/nix-flake";
 
-    home-manager.url = "github:nix-community/home-manager/master";
+    home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-colors.url = "github:misterio77/nix-colors";
@@ -101,7 +100,6 @@
           # and overlays.
           namespace = "jules";
           # package-namespace = "uwu_pkgs";
-          root = ./.;
 
           # Add flake metadata that can be processed by tools like Snowfall Frost.
           meta = {
@@ -117,22 +115,21 @@
 
       overlays = with inputs; [
         fenix.overlays.default
-        # neovim.overlays.default
-        # tmux.overlay
         flake.overlays.default
         thaw.overlays.default
-        # cowsay.overlays.default
         icehouse.overlays.default
         attic.overlays.default
       ];
 
-      home.modules = with inputs; [ nixvim.homeManagerModules.nixvim ];
+      # Applied modules to all home-manager instances
+      homes.modules = with inputs; [ ];
 
       systems.modules.nixos = with inputs; [
-        home-manager.nixosModules.home-manager
         nixvim.nixosModules.nixvim
+        home-manager.nixosModules.home-manager
         xremap-flake.nixosModules.default
-
+        vault-service.nixosModules.nixos-vault-service
       ];
+
     };
 }
