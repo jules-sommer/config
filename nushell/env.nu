@@ -100,12 +100,10 @@ $env.NU_PLUGIN_DIRS = [
 # All additions to PATH are done below:
 $env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.cargo/bin')
 $env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.local/bin')
-$env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.dotnet/tools')
 
 $env.NIX_PATH = ($env.NIX_PATH  | prepend 'nixpkgs=/home/jules/.nix-defexpr/channels_root/nixos')
 $env.NIX_BUILD_TOP = $env.PWD;
 
-$env.XATA_API_KEY = "xau_v4kGKOStEWv21utdSuQQyMTFn7yD9OzBd";
 
 $env.HOME = "/home/jules"
 $env.DOTFILES = "~/_dev/.config";
