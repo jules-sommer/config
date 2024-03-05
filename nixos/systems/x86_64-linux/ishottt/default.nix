@@ -17,6 +17,7 @@ systems, # An attribute map of your defined hosts.
 
 # All other arguments come from the system system.
 config, ... }:
+
 with lib.jules;
 let inherit (lib.jules) enabled;
 in {
@@ -27,11 +28,18 @@ in {
   jules = {
     electron-support = enabled;
     nix-ld = enabled;
+    nix = {
+      warn-dirty = false;
+      experimental-features =
+        [ "nix-command flakes configurable-impure-env auto-allocate-uids" ];
+      auto-optimise-store = true;
+    };
     flake = {
       thaw = enabled;
       flake-cli = enabled;
     };
   };
+
   # Configure the bootloader
   boot = {
     # supportedFilesystems = [ "zfs" ];
