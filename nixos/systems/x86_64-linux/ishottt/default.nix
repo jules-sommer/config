@@ -384,13 +384,6 @@ in {
       remotePlay.openFirewall = true;
       dedicatedServer.openFirewall = true;
     };
-    nix-ld = {
-      enable = true;
-      libraries = with pkgs;
-        [
-          # libs for dyn linked pkgs
-        ];
-    };
   };
 
   programs.thunar.plugins = with pkgs.xfce; [
