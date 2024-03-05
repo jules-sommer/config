@@ -17,11 +17,16 @@ systems, # An attribute map of your defined hosts.
 
 # All other arguments come from the system system.
 config, ... }:
-with lib.jules; {
+with lib.jules;
+let inherit (lib.jules) enabled;
+in {
   # Your configuration.
 
   imports = [ ./hardware-configuration.nix ./nvidia_drivers.nix ];
 
+  jules = {
+    nix-ld = enabled;
+  };
   # Configure the bootloader
   boot = {
     # supportedFilesystems = [ "zfs" ];
