@@ -52,9 +52,42 @@ config/local*
 /.npmrc
 /.pypirc
 
-# ! IGNORE EVERYTHING EXCEPT IMPORTANT DOTFILES
-# ! VERY IMPORTANT TO KEEP THIS AT THE END OF THE FILE
-*
+/Bitwarden/*
+/Code - Insiders/*
+/GitHub Desktop/*
+/chromium/*
+/JetBrains/*
+/QtProject.conf
+/Signal/*
+/VirtualBox/*
+/Thunar
+/autostart
+/alacritty
+/arkrc
+/arcmenu-settings
+/backup_vscode_insiders
+/broot
+/cef_user_data
+/discord
+/discordcanary
+/dconf
+/gtk-4.0
+/crossnote
+/helix
+/htop
+/lapce-stable
+/direnv
+/dlv
+/gh
+/git
+/go
+/gtk-3.0
+/input-overlay
+/lazygit
+/libreoffice
+/nixpkgs-mozilla
+/obsidian
+
 !/.gitignore
 !/.floorp/u1vm89ae.default
 !/.floorp/profiles.ini
@@ -71,3 +104,4 @@ config/local*
 !/README.md
 !/LICENSE
 !/starship.toml
+.floorp/u1vm89ae.default
