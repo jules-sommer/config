@@ -15,6 +15,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    oxalica-rs = {
+      url = "github:oxalica/rust-overlay";
+      inputs = { nixpkgs.follows = "nixpkgs"; };
+    };
+
     helix = {
       url = "github:helix-editor/helix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -101,6 +111,11 @@
           namespace = "jules";
           # package-namespace = "uwu_pkgs";
 
+          config = {
+            allowUnfree = true;
+            permittedUnfreePackages = [ "electron" ];
+          };
+
           # Add flake metadata that can be processed by tools like Snowfall Frost.
           meta = {
             # A slug to use in documentation when displaying things like file paths.
@@ -130,6 +145,5 @@
         xremap-flake.nixosModules.default
         vault-service.nixosModules.nixos-vault-service
       ];
-
     };
 }
