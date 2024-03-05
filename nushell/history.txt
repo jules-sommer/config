@@ -1760,3 +1760,10 @@ hx config.nu
 ls
 hx config.nu
 ls
+lazygit
+flake switch .#ishottt
+flake switch .#ishot
+hyprland
+hyprctl dispatch exec hyprland
+hyprctl dispatch
+hyprland
