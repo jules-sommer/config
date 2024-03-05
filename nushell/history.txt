@@ -1874,3 +1874,4 @@ flake test .#ishottt --show-trace
 flake test .#ishottt
 code-insiders $nu.config-path
 nu
+lazygit
