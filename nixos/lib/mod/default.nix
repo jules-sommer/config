@@ -38,6 +38,15 @@ with lib; rec {
   #@ Type -> Any -> String
   mkBoolOpt' = mkOpt' types.bool;
 
+  ## Maps a list of strings to a single whitespace delimited string.
+  ##
+  ## ```nix
+  ## lib.joinStrings ["a" "b" "c"]
+  ## ```
+  ##
+  #@ List String -> String
+  joinStrings = strings: builtins.concatStringsSep " " strings;
+
   enabled = {
     ## Quickly enable an option.
     ##

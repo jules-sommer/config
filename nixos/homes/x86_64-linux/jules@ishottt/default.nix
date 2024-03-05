@@ -1,5 +1,7 @@
 { inputs, lib, pkgs, config, ... }:
-with lib.jules; {
+with lib.jules;
+let inherit (lib.jules) enabled;
+in {
   # You can import other home-manager modules here
   imports = [ ./qt-gtk.nix ];
 
@@ -15,6 +17,8 @@ with lib.jules; {
       permittedInsecurePackages = [ "electron-25.9.0" ];
     };
   };
+
+  jules = { apps = { torrents = enabled; }; };
 
   programs.home-manager.enable = true;
   home.username = settings.user;
