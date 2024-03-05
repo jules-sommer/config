@@ -1,12 +1,18 @@
-{ options, config, lib, pkgs, ... }:
+{ lib, config, ... }:
 
-with lib;
-with lib.jules;
-let cfg = config.jules.electron-support;
+let
+  inherit (lib) mkEnableOption mkIf;
+  inherit (lib.jules) enabled;
+
+  cfg = config.jules.electron-support;
 in {
-  # options.jules.electron-support =
-  #   mkOpt types.bool false "Enable support for Electron applications";
+  options.jules.electron-support = {
+    enable = mkEnableOption "Enable electron support";
+  };
 
-  jules.home.configFile."electron-flags.conf".source = ./electron-flags.conf;
-  environment.sessionVariables = { NIXOS_OZONE_WL = "1"; };
+  config = mkIf cfg.enable {
+    jules.home.configFile."electron-flags.conf".source = ./electron-flags.conf;
+    environment.sessionVariables = { NIXOS_OZONE_WL = "1"; };
+  };
 }
+

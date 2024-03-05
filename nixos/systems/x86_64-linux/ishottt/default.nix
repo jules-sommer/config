@@ -25,6 +25,7 @@ in {
   imports = [ ./hardware-configuration.nix ./nvidia_drivers.nix ];
 
   jules = {
+    electron-support = enabled;
     nix-ld = enabled;
   };
   # Configure the bootloader
