@@ -5064,3 +5064,5 @@ chromium/segmentation_platform/ukm_db-journal
 menus/applications-merged/user-chrome-apps.menu
 menus/applications-merged/xdg-desktop-menu-dummy.menu
 nix-data/config.json
+chromium
+lapce-stable
