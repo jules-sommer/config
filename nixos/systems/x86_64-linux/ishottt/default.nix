@@ -27,6 +27,10 @@ in {
   jules = {
     electron-support = enabled;
     nix-ld = enabled;
+    flake = {
+      thaw = enabled;
+      flake-cli = enabled;
+    };
   };
   # Configure the bootloader
   boot = {
