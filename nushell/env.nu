@@ -97,6 +97,25 @@ $env.NU_PLUGIN_DIRS = [
     ($nu.default-config-dir | path join 'plugins') # add <nushell-config-dir>/plugins
 ]
 
+def get_path [] {
+  $env.PATH | split row (char esep)
+}
+
+def add_to_path [path] bool {
+    print $"Adding ($path) to path..."
+    print $"Path of ($path) exists on filesystem: ($path | path exists)"
+  if ($path | path exists) {
+    echo $"Path does not exist: ($path)"
+    false
+  }
+  $env.PATH = (get_path | prepend $path | str join (char esep))
+  true
+}
+
+if (add_to_path "/home/jules/.config/Code - Insiders/User/globalStorage/rust-lang.rust-analyzer/rust-analyzer") {
+  echo "Added rust-analyzer to PATH..."
+}
+
 # All additions to PATH are done below:
 $env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.cargo/bin')
 $env.PATH = ($env.PATH | split row (char esep) | prepend '/home/jules/.local/bin')
@@ -107,6 +126,3 @@ $env.NIX_BUILD_TOP = $env.PWD;
 
 $env.HOME = "/home/jules"
 $env.DOTFILES = "~/_dev/.config";
-
-mkdir ~/.cache/starship
-starship init nu | save -f ~/.cache/starship/init.nu

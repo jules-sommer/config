@@ -718,7 +718,7 @@ $env.config = {
 neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on
 
 source ~/.config/broot/launcher/nushell/br
-source ~/.config/zoxide/.zoxide.nu
+source ~/.config/z/.oxide.nu
 use ~/.cache/starship/init.nu
 
 def cjq_meta [] {
