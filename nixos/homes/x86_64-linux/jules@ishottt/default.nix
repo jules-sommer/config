@@ -133,7 +133,7 @@ in {
     };
 
     helix = {
-      enable = true;
+      enable = false;
       package = inputs.helix.packages."x86_64-linux".default;
       defaultEditor = true;
       settings = {

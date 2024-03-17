@@ -1,8 +1,13 @@
 {
   description = "JulesOS NixOS configuration flake";
   inputs = {
-    stable.url = "github:nixos/nixpkgs/nixos-23.11";
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    stable = { url = "github:nixos/nixpkgs/nixos-23.11"; };
+    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+
+    nix-fast-build = {
+      url = "github:Mic92/nix-fast-build";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     pinix.url = "github:remi-dupre/pinix";
     fenix = {
@@ -83,16 +88,18 @@
       url = "github:snowfallorg/thaw";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    nix-software-center.url = "github:snowfallorg/nix-software-center";
 
-    xremap-flake.url = "github:xremap/nix-flake";
+    nix-software-center = { url = "github:snowfallorg/nix-software-center"; };
+    xremap-flake = { url = "github:xremap/nix-flake"; };
 
-    home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
-    nix-colors.url = "github:misterio77/nix-colors";
+    nix-colors = { url = "github:misterio77/nix-colors"; };
 
-    hyprland.url = "github:hyprwm/Hyprland";
+    hyprland = { url = "github:hyprwm/Hyprland"; };
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland";
@@ -101,7 +108,6 @@
 
   outputs = inputs:
     let
-      test = builtins.trace inputs;
       lib = inputs.snowfall-lib.mkLib {
         inherit inputs;
         src = ./.;
@@ -126,7 +132,9 @@
         };
       };
     in lib.mkFlake {
-      channels-config = { allowUnfree = true; };
+      channels-config = {
+        allowUnfree = true;
+      };
 
       overlays = with inputs; [
         fenix.overlays.default
@@ -137,7 +145,12 @@
       ];
 
       # Applied modules to all home-manager instances
-      homes.modules = with inputs; [ ];
+      homes.users."jules@ishottt" = {
+        modules = with inputs; [
+          nixvim.homeManagerModules.nixvim
+          hyprland.homeManagerModules.default
+        ];
+      };
 
       systems.modules.nixos = with inputs; [
         nixvim.nixosModules.nixvim

@@ -11,6 +11,26 @@ with lib; rec {
   mkOpt = type: default: description:
     mkOption { inherit type default description; };
 
+
+  # Checks if a path exists on the filesystem.
+  #
+  # ```nix
+  # lib.pathExists "/etc/passwd"
+  # ```
+  #
+  #@ String -> Bool
+  pathExists = path: builtins.pathExists path;
+
+  # Create a NixOS module option that allows user to pass a list of packages.
+  #
+  # ```nix
+  # lib.mkListOf nixpkgs.lib.types.package (with nixpkgs; [git vim])
+  # ```
+  #
+  #@ Type -> Any -> String
+  mkListOf = type: default: description:
+    mkOption { inherit type default description; };
+
   ## Create a NixOS module option without a description.
   ##
   ## ```nix
@@ -69,5 +89,4 @@ with lib; rec {
     enable = false;
   };
 
-  mkIf = condition: then_: else_: if condition then then_ else else_;
 }

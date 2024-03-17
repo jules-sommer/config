@@ -63,7 +63,6 @@ in {
     github-desktop
     rye
     flyctl
-    warp-terminal
 
     # Nix and System Tools
     (pkgs.wrapOBS {

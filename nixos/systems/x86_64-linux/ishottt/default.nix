@@ -1,27 +1,7 @@
-{
-# Snowfall Lib provides a customized `lib` instance with access to your flake's library
-# as well as the libraries available from your flake's inputs.
-lib,
-# An instance of `pkgs` with your overlays and packages applied is also available.
-pkgs,
-# You also have access to your flake's inputs.
-inputs,
-
-# Additional metadata is provided by Snowfall Lib.
-system, # The system architecture for this host (eg. `x86_64-linux`).
-target, # The Snowfall Lib target for this system (eg. `x86_64-iso`).
-format, # A normalized name for the system target (eg. `iso`).
-virtual
-, # A boolean to determine whether this system is a virtual target using nixos-generators.
-systems, # An attribute map of your defined hosts.
-
-# All other arguments come from the system system.
-config, ... }:
-
+{ lib, pkgs, inputs, system, target, format, virtual, systems, config, ... }:
 with lib.jules;
 let inherit (lib.jules) enabled;
 in {
-  # Your configuration.
 
   imports = [ ./hardware-configuration.nix ./nvidia_drivers.nix ];
 
@@ -38,13 +18,29 @@ in {
       thaw = enabled;
       flake-cli = enabled;
     };
+    systemd = {
+      wireguard = {
+        enable = true;
+        interfaces = [{
+          autostart = true;
+          name = "US-NY-301";
+          address = "10.2.0.2/32";
+          privateKey = "iKYkmILj6cHORqzciADuPcIeQI73crlJC9/uQGHkHFs=";
+          port = 51820;
+          dns = [ "10.2.0.1" ];
+          endpoint = {
+            publicKey = "L/lAxBloXzDXNrWw1xtJgEMJWPct1reKQPkRsw/7Knw=";
+            ip = "104.234.212.26";
+            port = 51820;
+          };
+        }];
+      };
+    };
   };
 
-  # Configure the bootloader
   boot = {
     # supportedFilesystems = [ "zfs" ];
     zfs.forceImportRoot = false;
-
     loader = {
       systemd-boot = {
         enable = true;
@@ -120,18 +116,22 @@ in {
   hardware.pulseaudio.enable = false;
   # rtkit is optional but recommended
   security.rtkit.enable = true;
-
   users.defaultUserShell = pkgs.nushell;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.${settings.user} = {
     isNormalUser = true;
     homeMode = "755";
     ignoreShellProgramCheck = true;
     description = "Jules";
-    extraGroups =
-      [ "networkmanager" "wheel" "vboxusers" "docker" "libvirtd" "fuse" ];
-
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "vboxusers"
+      "docker"
+      "libvirtd"
+      "fuse"
+      "rootless"
+    ];
     useDefaultShell = true;
   };
 
