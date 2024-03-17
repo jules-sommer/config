@@ -104,13 +104,6 @@ in {
     useDefaultShell = true;
   };
 
-  # Theme QT -> GTK
-  qt = {
-    enable = true;
-    platformTheme = "qt5ct";
-    style = "adwaita-dark";
-  };
-
   ########################################
   ################ USER ##################
   ########################################
@@ -318,21 +311,6 @@ in {
     };
   };
 
-  # Fonts
-  fonts = {
-    enableDefaultPackages = true;
-    fontDir.enable = true;
-
-    packages = with pkgs; [ ubuntu_font_family jetbrains-mono fira-code ];
-
-    fontconfig = {
-      defaultFonts = {
-        serif = [ "Ubuntu" ];
-        sansSerif = [ "Ubuntu" ];
-        monospace = [ "JetBrains Mono Nerd Font" ];
-      };
-    };
-  };
   # TODO: Should settings for programs colocated with the
   # module that enables them. Same for all things basically.
 
