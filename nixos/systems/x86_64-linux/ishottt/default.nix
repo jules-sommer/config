@@ -2,8 +2,7 @@
 with lib.jules;
 let inherit (lib.jules) enabled;
 in {
-
-  imports = [ ./hardware-configuration.nix ./nvidia_drivers.nix ];
+  imports = [ ./hardware-configuration.nix ];
 
   jules = {
     electron-support = enabled;
@@ -13,6 +12,10 @@ in {
       experimental-features =
         [ "nix-command flakes configurable-impure-env auto-allocate-uids" ];
       auto-optimise-store = true;
+    };
+    graphics = {
+      opengl = true;
+      drivers = [ "nouveau" ];
     };
     flake = {
       thaw = enabled;
