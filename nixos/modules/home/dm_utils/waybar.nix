@@ -11,6 +11,7 @@ in with lib.jules; {
       modules-left = [ "hyprland/window" "custom/startmenu" ];
       modules-center = [
         "network"
+        "custom/themeselector"
         "pulseaudio"
         "cpu"
         "hyprland/workspaces"
@@ -19,7 +20,7 @@ in with lib.jules; {
         "clock"
       ];
       modules-right =
-        [ "idle_inhibitor" "custom/notification" "battery" "tray" ];
+        [ "idle_inhibitor" "custom/notification" "battery" "tray" "privacy" ];
       "hyprland/workspaces" = {
         format = "{icon}";
         format-icons = {
@@ -49,8 +50,9 @@ in with lib.jules; {
         tooltip = true;
       };
       "disk" = {
-        format = "  {free}";
+        format = "  {free} / {total}";
         tooltip = true;
+        on-click = "hyprctl dispatch 'exec alacritty -e broot -hipsw'";
       };
       "network" = {
         format-icons = [ "󰤯" "󰤟" "󰤢" "󰤥" "󰤨" ];
@@ -58,6 +60,7 @@ in with lib.jules; {
         format-wifi = "{icon} {signalStrength}%";
         format-disconnected = "󰤮";
         tooltip = false;
+        on-click = "nm-applet";
       };
       "tray" = { spacing = 12; };
       "pulseaudio" = {
@@ -119,6 +122,28 @@ in with lib.jules; {
         on-click = "swaync-client -t";
         escape = true;
       };
+      "privacy" = {
+        icon-spacing = 4;
+        icon-size = 18;
+        transition-duration = 250;
+        modules = [
+          {
+            "type" = "screenshare";
+            "tooltip" = true;
+            "tooltip-icon-size" = 24;
+          }
+          {
+            "type" = "audio-out";
+            "tooltip" = true;
+            "tooltip-icon-size" = 24;
+          }
+          {
+            "type" = "audio-in";
+            "tooltip" = true;
+            "tooltip-icon-size" = 24;
+          }
+        ];
+      };
       "battery" = {
         states = {
           warning = 30;
@@ -134,14 +159,17 @@ in with lib.jules; {
     }];
     style = ''
       * {
-        font-size: 16px;
+        font-size: 15px;
         font-family: 'JetBrains Mono', Font Awesome, monospace;
-            font-weight: bold;
+            font-weight: 600;
       }
       window#waybar {
-            background-color: rgba(26,27,38,0);
+            margin: 5px;
+            padding: 5px;
+            border-radius: 15px;
+            border: 2px solid #${color "base0F"};
             border-bottom: 1px solid rgba(26,27,38,0);
-            border-radius: 0px;
+            background-color: rgba(26,27,38,0.64);
             color: #${color "base0F"};
       }
       #workspaces {
