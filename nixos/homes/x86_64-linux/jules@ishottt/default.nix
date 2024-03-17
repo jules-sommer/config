@@ -2,9 +2,6 @@
 with lib;
 let inherit (lib.jules) enabled disabled settings;
 in {
-  # You can import other home-manager modules here
-  imports = [ ./qt-gtk.nix ];
-
   nixpkgs = {
     overlays = [
       # Add overlays here
@@ -18,7 +15,45 @@ in {
     };
   };
 
-  jules = { apps = { torrents = enabled; }; };
+  jules = {
+    styles = {
+      enable = true;
+      font = pkgs.ubuntu_font_family;
+      cursor = pkgs.bibata-cursors;
+      qt = { theme = pkgs.adwaita-qt; };
+      gtk = {
+        theme = pkgs.orchis-theme;
+        iconTheme = pkgs.papirus-icon-theme;
+        cursorTheme = pkgs.bibata-cursors;
+      };
+    };
+    apps = {
+      torrents = enabled;
+      rust-cli-utils = enabled;
+      monero = enabled;
+      starship = enabled;
+      alacritty = enabled;
+      zellij = enabled;
+      nixvim = enabled;
+      # nushell = enabled;
+    };
+    window-manager = {
+      hyprland = {
+        enable = true;
+        plugins = {
+          enable = true;
+          splitMonitorWorkspaces = false;
+          eww = true;
+          extraPlugins = with inputs;
+            [
+              # Add extra plugins here
+              # inputs.hyprland-plugins.packages.${pkgs.system}.hyprbars
+              # inputs.hyprland-plugins.packages.${pkgs.system}.borders-plus-plus
+            ];
+        };
+      };
+    };
+  };
 
   programs.home-manager.enable = true;
   home.username = settings.user;
@@ -90,45 +125,6 @@ in {
           image_bound = [ 0 0 ];
           suppress_preload = false;
         };
-      };
-    };
-    # Alacritty @ ~/_dev/.config/alacritty/[...]
-    alacritty = {
-      enable = true;
-      settings = {
-        window = {
-          opacity = 0.85;
-          blur = true;
-          padding = {
-            x = 10;
-            y = 10;
-          };
-          dimensions = {
-            lines = 65;
-            columns = 125;
-          };
-        };
-        font = {
-          size = 12;
-          builtin_box_drawing = true;
-          normal = {
-            family = "JetBrains Mono Nerd Font";
-            style = "Regular";
-          };
-          bold = {
-            family = "JetBrains Mono Nerd Font";
-            style = "Bold";
-          };
-          italic = {
-            family = "JetBrains Mono Nerd Font";
-            style = "Italic";
-          };
-          bold_italic = {
-            family = "JetBrains Mono Nerd Font";
-            style = "Bold Italic";
-          };
-        };
-        selection = { save_to_clipboard = true; };
       };
     };
 
@@ -258,10 +254,6 @@ in {
           args = [ "lsp" ];
         };
       };
-    };
-    starship = {
-      enable = true;
-      package = pkgs.starship;
     };
     direnv = {
       enable = true;
