@@ -15,6 +15,7 @@ in {
         wlroots = true;
       };
     };
+    utils = { metasploit = enabled; };
     virtualisation = {
       enable = true;
       containers = {
@@ -84,59 +85,6 @@ in {
     };
   };
 
-  # ---------
-  # SERVICES
-  # ---------
-  services = {
-    xserver = {
-      enable = true;
-      autoRepeatDelay = 200;
-      autoRepeatInterval = 30;
-      autorun = true;
-
-      xkb = {
-        layout = "us";
-        variant = "";
-      };
-
-      libinput.enable = true;
-      displayManager = {
-        lightdm.enable = false;
-        defaultSession = "hyprland";
-        gdm = {
-          enable = true;
-          wayland = true;
-        };
-      };
-
-      desktopManager = {
-        gnome.enable = false;
-        xterm.enable = false;
-      };
-
-    };
-
-    openssh.enable = true;
-    fstrim.enable = true;
-
-    # Enable CUPS to print documents.
-    printing.enable = true;
-
-    pipewire = {
-      enable = true;
-      alsa.enable = true;
-      alsa.support32Bit = true;
-      pulse.enable = true;
-      jack.enable = true; # For JACK app support
-    };
-
-    tumbler.enable = true; # Thumbnail support for images and videos
-    gvfs.enable = true;
-  };
-
-  hardware.pulseaudio.enable = false;
-  # rtkit is optional but recommended
-  security.rtkit.enable = true;
   users.defaultUserShell = pkgs.nushell;
 
   users.users.${settings.user} = {
@@ -168,17 +116,32 @@ in {
   ########################################
 
   environment = {
+
+    # TODO: Organize, organize, organize!!
+    # all of these should really be separate modules based on
+    # group of functionality or if a certain package requires
+    # more config than just enabling it, can be individual.
+
     systemPackages = with pkgs; [
       micro
       # home-manager
       helix
       broot
       zellij
+      gleam
 
       inputs.nix-software-center.packages.${system}.nix-software-center
 
       nixfmt
       obsidian
+
+      readarr
+      ebook_tools
+      papeer
+      bookworm
+      calibre
+      foliate
+      bk
 
       jetbrains-mono
       (nerdfonts.override { fonts = [ "JetBrainsMono" ]; })
@@ -190,26 +153,13 @@ in {
       wl-clipboard
       luakit
 
+      # langs
       git
       gh
       neofetch
-      glibc.dev
-      glib.dev
       glibc
       uclibc
       cmake
-      pkg-config
-      gdk-pixbuf
-      atkmm
-      pango
-      gtk4
-      gtk3
-      gtkmm3
-      gobject-introspection
-      atk
-      cairo
-
-      # langs
       hexyl
       binutils
       clang-tools
@@ -225,10 +175,6 @@ in {
       lld
       libclc
       llvm
-      llvmPackages_17.clang
-      llvmPackages_17.lld
-      llvmPackages_17.libclc
-      llvmPackages_17.llvm
       nodejs
       bun
       go
@@ -252,11 +198,6 @@ in {
       fira-code
       vscode-with-extensions
 
-      virtualbox
-      linuxKernel.packages.linux_zen.virtualbox
-      qemu
-      libvirt
-
       # Langs
       python3
       cmake
@@ -267,9 +208,6 @@ in {
       maven
       jekyll
       gcc
-
-      # rustup vscode-extensions.rust-lang.rust-analyzer clippy rustc rustfmt rust-analyzer
-      # rustup cargo
 
       llvm
       lld
@@ -297,6 +235,7 @@ in {
       asciidoctor
       jumpapp
       swaynotificationcenter
+      jetbrains.idea-ultimate
 
       pkgs.libsForQt5.qt5.qtgraphicaleffects
       font-awesome
@@ -324,14 +263,16 @@ in {
       grimblast
       slurp
 
-      rnix-lsp
+      apx
+      networkmanagerapplet
+
+      # rnix-lsp
 
       polkit_gnome
 
       xorg.xkbcomp
       xbindkeys
 
-      libvirt
       virt-viewer
 
       xorg.xwininfo
@@ -341,8 +282,17 @@ in {
       zlib
       ntfs3g
 
+      lcsync
+      librespot
+      libresprite
+      librecad
+      librepcb
     ];
-    # Set the environment variables
+
+    # FIXME: Better handling of environment variables is needed
+    # namely, should be able to set default and additional variables
+    # and it should be done consistently across the system
+
     variables = {
       FLAKE = "${settings.home}/_dev/.config/nixos";
       POLKIT_BIN =
