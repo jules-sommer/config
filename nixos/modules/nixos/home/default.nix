@@ -15,7 +15,7 @@ in {
 
   config = {
     jules.home.extraOptions = {
-      home.stateVersion = config.system.stateVersion;
+      home.stateVersion = settings.version;
       home.file = mkAliasDefinitions options.jules.home.file;
       xdg.enable = true;
       xdg.configFile = mkAliasDefinitions options.jules.home.configFile;

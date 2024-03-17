@@ -1,6 +1,6 @@
 { inputs, lib, pkgs, config, ... }:
-with lib.jules;
-let inherit (lib.jules) enabled;
+with lib;
+let inherit (lib.jules) enabled disabled settings;
 in {
   # You can import other home-manager modules here
   imports = [ ./qt-gtk.nix ];

@@ -48,32 +48,25 @@
 
     attic = {
       url = "github:zhaofengli/attic";
-
-      # FIXME: A specific version of Rust is needed right now or
-      # the build fails. Re-enable this after some time has passed.
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Vault Integration
     vault-service = {
       url = "github:DeterminateSystems/nixos-vault-service";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Flake Hygiene
     flake-checker = {
       url = "github:DeterminateSystems/flake-checker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Source: https://snowfall.org/guides/lib/quickstart/
-    # name must remain for snowfall to function
     snowfall-lib = {
       url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Snowfall Flake
     flake = {
       url = "github:snowfallorg/flake";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -98,8 +91,8 @@
     };
 
     nix-colors = { url = "github:misterio77/nix-colors"; };
-
     hyprland = { url = "github:hyprwm/Hyprland"; };
+
     hyprland-plugins = {
       url = "github:hyprwm/hyprland-plugins";
       inputs.hyprland.follows = "hyprland";

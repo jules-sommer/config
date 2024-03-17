@@ -1,16 +1,15 @@
-{ lib, config, ... }:
+{ lib, inputs, config, pkgs, ... }:
 
 let
-  inherit (lib) mkEnableOption mkIf;
-  inherit (lib.jules) enabled;
+  inherit (lib) mkEnableOption mkIf types  mkOption;
+  inherit (lib.jules) enabled mkOpt mkListOf;
 
-  cfg = config.jules.electron-support;
+  cfg = config.jules.nix-ld or [];
 in {
-  options.jules.nix-ld = {
+  options.jules.nix-ld = with types; {
     enable = mkEnableOption
       "Enable nix-ld for running binaries that require dynamic linking at runtime.";
-    runtimeLibs = mkOpt (types.list types.pkgs)
-      "List of runtime libraries to be included in the nix-ld environment.";
+    runtimeLibs = mkOpt (listOf package) [] "List of runtime libraries to include in the nix-ld environment. This list is merged with the default list of runtime libraries.";
   };
 
   config = mkIf cfg.enable {
@@ -18,7 +17,7 @@ in {
       enable = true;
       libraries = with pkgs;
       # IMPORTANT: this list is merged with the user's list of runtimeLibs passed in as cfg.runtimeLibs
-        cfg.runtimeLibs // [
+        cfg.runtimeLibs ++ [
           gtk3
           gtk4
           cairo

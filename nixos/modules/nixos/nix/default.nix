@@ -15,7 +15,8 @@ in {
   };
 
   config = {
-    nix = {
+    nix = let users = [ "root" lib.jules.settings.user ];
+    in {
       # Additional optimizations below from this nix-starter config
       # https://github.com/Misterio77/nix-starter-configs/blob/main/minimal/nixos/configuration.nix
 
@@ -31,6 +32,17 @@ in {
         auto-optimise-store = cfg.auto-optimise-store;
         experimental-features = joinStrings cfg.experimental-features;
         warn-dirty = cfg.warn-dirty;
+
+        cores = 12;
+        http-connections = 50;
+        log-lines = 50;
+        sandbox = "relaxed";
+        trusted-users = users;
+        allowed-users = users;
+
+        keep-outputs = true;
+        keep-derivations = true;
+
         substituters = [ "https://hyprland.cachix.org" ];
         trusted-public-keys = [
           "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
@@ -39,9 +51,17 @@ in {
       gc = {
         automatic = true;
         dates = "daily";
-        options = "--delete-older-than 14d";
+        options = "--delete-older-than 7d";
       };
     };
+    environment.systemPackages = with pkgs; [
+      deploy-rs
+      nixfmt
+      nix-index
+      nix-prefetch-git
+      nix-output-monitor
+      flake-checker
+    ];
     environment.etc = lib.mapAttrs' (name: value: {
       name = "/home/jules/.nix-defexpr/channels_root/nixos/${name}";
       value.source = value.flake;
