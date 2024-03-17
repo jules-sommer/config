@@ -7,10 +7,19 @@ in {
   jules = {
     electron-support = enabled;
     nix-ld = enabled;
+    portals = {
+      enable = true;
+      extraPortals = {
+        hyprland = true;
+        gtk = true;
+        wlroots = true;
+      };
+    };
     nix = {
       warn-dirty = false;
-      experimental-features =
-        [ "nix-command flakes configurable-impure-env auto-allocate-uids" ];
+      experimental-features = [
+        "nix-command flakes configurable-impure-env auto-allocate-uids verified-fetches fetch-tree fetch-closure impure-derivations dynamic-derivations"
+      ];
       auto-optimise-store = true;
     };
     graphics = {
@@ -339,7 +348,7 @@ in {
   };
 
   systemd = {
-    services.NetworkManager-wait-online.enable = false;
+    network.wait-online.enable = false;
     user.services.polkit-gnome-authentication-agent-1 = {
       description = "polkit-gnome-authentication-agent-1";
       wantedBy = [ "graphical-session.target" ];
@@ -371,9 +380,8 @@ in {
       };
     };
   };
-
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
+  # TODO: Should settings for programs colocated with the
+  # module that enables them. Same for all things basically.
 
   programs = {
     wshowkeys.enable = true;
@@ -404,13 +412,6 @@ in {
     thunar-archive-plugin
     thunar-volman
   ];
-
-  xdg.portal = {
-    enable = true;
-    extraPortals = [ pkgs.xdg-desktop-portal ];
-    configPackages =
-      [ pkgs.xdg-desktop-portal-hyprland pkgs.xdg-desktop-portal ];
-  };
 
   security.polkit.enable = true;
   security.pam.services.swaylock = {
