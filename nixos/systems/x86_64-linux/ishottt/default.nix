@@ -15,6 +15,20 @@ in {
         wlroots = true;
       };
     };
+    virtualisation = {
+      enable = true;
+      containers = {
+        enable = true;
+        podman = {
+          enable = true;
+          rootless = true;
+        };
+        docker = {
+          enable = true;
+          rootless = true;
+        };
+      };
+    };
     nix = {
       warn-dirty = false;
       experimental-features = [
@@ -102,11 +116,6 @@ in {
 
     };
 
-    # VM Services
-    qemuGuest.enable = true;
-    spice-vdagentd.enable = true;
-    spice-webdavd.enable = true;
-
     openssh.enable = true;
     fstrim.enable = true;
 
@@ -146,12 +155,6 @@ in {
     ];
     useDefaultShell = true;
   };
-
-  virtualisation.docker.enable = true;
-  virtualisation.libvirtd.enable = true;
-  virtualisation.virtualbox.host.enable = true;
-  virtualisation.virtualbox.guest.enable = true;
-  virtualisation.virtualbox.host.enableExtensionPack = true;
 
   # Theme QT -> GTK
   qt = {
