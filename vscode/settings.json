@@ -1,5 +1,10 @@
 {
   "editor.tabSize": 2,
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.indentation": false,
+  "editor.guides.highlightActiveBracketPair": true,
+  "editor.guides.bracketPairs": false, // advanced indent guides (But only for brackets) (This does not turn off editor.bracketPairColorization)
+  "editor.guides.bracketPairsHorizontal": false,
   "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
   "editor.experimentalWhitespaceRendering": "font",
   //         _                 _   _                      _                 
@@ -8,11 +13,15 @@
   //   \ V /| \__ \ |_| | (_| | | | |_ \ V  V /  __/ (_| |   <  __/ |  \__ \
   //    \_/ |_|___/\__,_|\__,_|_|  \__| \_/\_/ \___|\__,_|_|\_\___|_|  |___/
   //   
-  "editor.fontFamily": "Fira Code",
+  "editor.fontFamily": "JetBrains Mono",
+  "terminal.integrated.fontFamily": "JetBrains Mono",
+  "editor.fontSize": 17,
+  "terminal.integrated.fontSize": 17,
+  "editor.acceptSuggestionOnEnter": "smart",
+  "editor.autoClosingBrackets": "languageDefined",
+  "editor.autoClosingOvertype": "auto",
   "editor.fontLigatures": true,
-  "editor.inlayHints.enabled": "off",
-  "editor.guides.indentation": false, // new API for indent guides. The old one is: "editor.renderIndentGuides": false,
-  "editor.guides.bracketPairs": false, // advanced indent guides (But only for brackets) (This does not turn off editor.bracketPairColorization)
+  "editor.inlayHints.enabled": "on", // new API for indent guides. The old one is: "editor.renderIndentGuides": false,
   "editor.wordWrap": "off",
   "diffEditor.wordWrap": "off",
   "workbench.colorTheme": "Dark+ Black",
@@ -28,7 +37,7 @@
   "editor.multiCursorPaste": "full",
   "editor.pasteAs.showPasteSelector": "afterPaste",
   "editor.experimental.asyncTokenization": true,
-  "editor.lineHeight": 1.4,
+  "editor.lineHeight": 1.475,
   "workbench.sideBar.location": "right",
   "editor.codeActionsOnSave": {
     "source.fixAll": "always",
@@ -36,16 +45,18 @@
   },
   "editor.indentSize": 2,
   "editor.insertSpaces": true,
-  // "editor.inlayHints.enabled": "on",
   /* Terminal Appearance and Behaviour */
   "color-highlight.markRuler": false,
-  "workbench.tree.renderIndentGuides": "onHover",
+  "workbench.tree.renderIndentGuides": "none",
   // Cursor
   "editor.cursorBlinking": "phase",
   "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorStyle": "block",
+  "editor.cursorSurroundingLines": 3,
+  "editor.cursorWidth": 2.5,
+  "terminal.integrated.cursorStyle": "block",
+  "editor.multiCursorModifier": "ctrlCmd",
   // 
-  // "editor.guides.indentation": false,
-  // "editor.guides.bracketPairs": true,
   "editor.renderLineHighlight": "none",
   "editor.glyphMargin": false,
   "editor.lineNumbers": "interval",
@@ -53,10 +64,16 @@
   "workbench.layoutControl.type": "menu",
   "window.title": "${dirty}${activeEditorShort}",
   "window.titleBarStyle": "custom",
+  "breadcrumbs.enabled": false,
   // 
   "workbench.colorCustomizations": {
+    "editorGutter.background": "#000000",
+    "editorGroupHeader.tabsBackground": "#000000",
+    "tab.inactiveBackground": "#000000",
+    "breadcrumb.background": "#000000",
     "terminal.background": "#000000",
     "terminal.foreground": "#ffffff",
+    "editor.background": "#000000",
     // terminal menu bar background color
     "menu.background": "#000000",
     "editorMarkerNavigation.background": "#ff0000",
@@ -109,13 +126,22 @@
   },
   // Indent transparent depth-based infill
   "indentColorizer.colors": [
-    "rgba(255,255,64,0.07)",
-    "rgba(127,255,205,0.07)",
-    "rgba(255,128,210,0.07)",
-    "rgba(79,236,236,0.07)",
-    "rgba(78,184,237,0.07)",
-    "rgba(233,226,74,0.07)",
-    "rgba(101,74,233,0.07)",
+    // Soft Pink
+    "rgba(255, 138, 216, 0.05)",
+    // Light Orange
+    "rgba(255, 165, 130, 0.075)",
+    // Pastel Yellow
+    "rgba(255, 229, 153, 0.090)",
+    // Mint Green
+    "rgba(162, 255, 178, 0.1)",
+    // Sky Blue
+    "rgba(130, 207, 255, 0.125)",
+    // Lavender
+    "rgba(178, 156, 255, 0.15)",
+    // Pale Purple
+    "rgba(204, 153, 255, 0.2)",
+    // Soft Magenta
+    "rgba(255, 153, 204, 0.25)"
   ],
   "indentRainbow.errorColor": "rgba(128,32,32,0.6)",
   "indentColorizer.colorOnWhiteSpaceOnly": true, // false is the default
@@ -128,21 +154,38 @@
     "json"
   ],
   "indentRainbow.colors": [
-    "rgba(25, 6, 48, 0.3)",
-    "rgba(28, 10, 50,0.4)",
-    "rgba(30, 13, 52, 0.5)",
-    "rgba(33, 17, 55,0.6)",
-    "rgba(36, 20, 62,0.7)",
-    "rgba(38, 23, 65,0.8)",
-    "rgba(40, 25, 68,0.8)",
-    "rgba(43, 26, 70,0.8)"
+    // Soft Pink
+    "rgba(255, 138, 216, 0.1)",
+    // Light Orange
+    "rgba(255, 165, 130, 0.11)",
+    // Pastel Yellow
+    "rgba(255, 229, 153, 0.12)",
+    // Mint Green
+    "rgba(162, 255, 178, 0.13)",
+    // Sky Blue
+    "rgba(130, 207, 255, 0.15)",
+    // Lavender
+    "rgba(178, 156, 255, 0.2)",
+    // Pale Purple
+    "rgba(204, 153, 255, 0.3)",
+    // Soft Magenta
+    "rgba(255, 153, 204, 0.35)"
   ],
-  // "blockman.n33A01B1FromDepth0ToInwardForAllBorders": "10,0,0,1; empty",
-  // "blockman.n33A01B2FromDepth0ToInwardForAllBackgrounds": "10,0,0,1; empty",
-  // "blockman.n33A02B1FromFocusToOutwardForAllBorders": "!",
-  // "blockman.n33A03B1FromDepth0ToInwardForFocusTreeBorders": "10,0,0,1; empty",
-  // "blockman.n33A03B2FromDepth0ToInwardForFocusTreeBackgrounds": "!",
-  "blockman.n33A04B1FromFocusToOutwardForFocusTreeBorders": "40,0,0,0; basic > basic",
+  // 
+  "blockman.n04Sub01ColorComboPresetForDarkTheme": "Classic Dark 1 (Super gradients)",
+  // "blockman.n04Sub02ColorComboPresetForLightTheme": "Classic Light (Super gradients)",
+  // "blockman.n04Sub03ColorComboPresetForHighContrastTheme": "Classic Dark 1 (Super gradients)",
+  "blockman.n04Sub05MinDistanceBetweenRightSideEdges": 4,
+  "blockman.n04Sub06AdditionalPaddingRight": 2,
+  "blockman.n17CustomColorOfFocusedBlock": "same",
+  "blockman.n23AnalyzeSquareBrackets": true,
+  "blockman.n24AnalyzeRoundBrackets": true,
+  // 
+  "blockman.n33A01B1FromDepth0ToInwardForAllBorders": "10,0,0,1; empty",
+  "blockman.n33A02B1FromFocusToOutwardForAllBorders": "!",
+  "blockman.n33A03B1FromDepth0ToInwardForFocusTreeBorders": "!10,0,0,1; empty",
+  "blockman.n33A03B2FromDepth0ToInwardForFocusTreeBackgrounds": "!",
+  "blockman.n33A04B1FromFocusToOutwardForFocusTreeBorders": "!40,0,0,0; basic > basic",
   "blockman.n20CustomColorOfDepth0Border": "rgba(255,255,255,0.1)",
   "blockman.n33A04B2FromFocusToOutwardForFocusTreeBackgrounds": "40,0,0,0; basic > basic",
   "blockman.n33A05B1FromFocusToInwardForAllBorders": "50,0,0,0; basic > basic",
@@ -185,7 +228,7 @@
   //   \___/_/\_\\__\___|_| |_|___/_|\___/|_| |_|___/
   //              
   // BLOCKMAN - Bracket block colorizer
-  "blockman.n28TimeToWaitBeforeRerenderAfterLastChangeEvent": 0.4,
+  "blockman.n28TimeToWaitBeforeRerenderAfterLastChangeEvent": 0.2,
   "blockman.n16EnableFocus": true,
   "blockman.n04ColorComboPreset": "Classic Dark 1 (Super gradients)",
   "blockman.n03MaxDepth": 15,
@@ -195,6 +238,7 @@
   "blockman.n34A01BorderThicknessOfNonFocusedBlock": 0.5,
   "blockman.n34A02BorderThicknessOfFocusedBlock": 1,
   "blockman.n19CustomColorOfBlockBorder": "#17000d",
+  "blockman.n22CustomColorOfBlockBackground": "#000",
   "blockman.n18CustomColorOfFocusedBlockBorder": "#ff00ff",
   // 
   // 
@@ -317,16 +361,9 @@
   "nix.formatterPath": "nixfmt",
   "terminal.integrated.env.linux": {},
   "terminal.integrated.allowChords": false,
-  "blockman.n04Sub01ColorComboPresetForDarkTheme": "Classic Dark 1 (Super gradients)",
-  // "blockman.n04Sub02ColorComboPresetForLightTheme": "Classic Light (Super gradients)",
-  // "blockman.n04Sub03ColorComboPresetForHighContrastTheme": "Classic Dark 1 (Super gradients)",
-  "blockman.n04Sub05MinDistanceBetweenRightSideEdges": 4,
-  "blockman.n04Sub06AdditionalPaddingRight": 2,
-  "blockman.n17CustomColorOfFocusedBlock": "none",
-  "blockman.n23AnalyzeSquareBrackets": true,
-  "blockman.n24AnalyzeRoundBrackets": true,
-  "terminal.integrated.fontFamily": "JetBrains Mono",
   "[javascript]": {
     "editor.defaultFormatter": "hb432.prettier-eslint-typescript"
-  }
+  },
+  "blockman.n04Sub02ColorComboPresetForLightTheme": "Classic Dark 1 (Super gradients)",
+  "blockman.n04Sub03ColorComboPresetForHighContrastTheme": "Classic Dark 1 (Super gradients)",
 }

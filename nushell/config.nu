@@ -176,16 +176,23 @@ $env.config = {
         pre_execution: [{ null }] # run before the repl input is run
         env_change: {
           PWD: [{ |before, after|
-          	print before
-          	print after
 
-      			# direnv: https://direnv.net/docs/hook.html
-          	if (which direnv | is-empty) {
-          		return
-        		}
+            #            print $"($before) and ($after)";
 
-        		direnv export json | from json | default {} | load-env
-    
+            if ($after | str contains "/home/jules/_dev") {
+              print $after
+              if ($after == ("/home/jules/_dev/.config/nixos" | path expand)) {
+                print "NIXOS CONFIG"
+              }
+            }
+
+            # direnv: https://direnv.net/docs/hook.html
+            if (which direnv | is-empty) {
+              return
+            }
+
+            direnv export json | from json | default {} | load-env
+
             let is_node_dir = [.nvmrc .node-version] | path exists | any { |it| $it }
             if ('FNM_DIR' in $env) and $is_node_dir {
               fnm --log-level=quiet use # Can also just use "fnm use"  
@@ -711,9 +718,33 @@ $env.config = {
 neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on
 
 source ~/.config/broot/launcher/nushell/br
-# source ~/.zoxide.nu
+source ~/.config/z/.oxide.nu
 use ~/.cache/starship/init.nu
+
+def cjq_meta [] {
+    (cargo metadata | jq '[.packages[] | {name, version, source, dependencies: (reduce .dependencies[] as $dep ({}; .[$dep.name] = {req: $dep.req, kind: $dep.kind}))}]' | wl-copy)
+}
 
 alias ll = ls -la
 alias nf = neofetch --gap 15 --color_blocks off --memory_percent on --disk_percent on
 alias br = broot -hips
+alias hx_conf = hx $nu.config-path
+alias hx_env = hx $nu.env-path
+alias cd = z
+alias cdi = zi
+alias copy = wl-copy
+alias paste = wl-paste
+alias sync = rsync -avh --progress
+alias mirror_sync = rsync -avzHAX --delete --numeric-ids --info=progress2
+alias cp = sync
+alias tree = dutree
+
+def all_dirs [path: string] {
+    ls $path | where type == "dir"
+}
+
+def recurse [depth: int] {
+  if $depth > 2 { return false; }
+  let here_dirs = all_dirs (pwd);
+  print $here_dirs;
+}
