@@ -1326,6 +1326,26 @@
         "type": "github"
       }
     },
+    "nixpkgs-unfree": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1709054971,
+        "narHash": "sha256-3IwfLOCKF/aGzjG79GCsj/ZxZF0hQYbitFyzekSYDwk=",
+        "owner": "numtide",
+        "repo": "nixpkgs-unfree",
+        "rev": "1cfef288e8ddfb79fba9e11cc869ccf1bcfc01e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "nixpkgs-unfree",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1692638711,
@@ -1549,6 +1569,7 @@
         "nix-fast-build": "nix-fast-build",
         "nix-software-center": "nix-software-center",
         "nixpkgs": "nixpkgs_3",
+        "nixpkgs-unfree": "nixpkgs-unfree",
         "nixvim": "nixvim",
         "oxalica-rs": "oxalica-rs",
         "pinix": "pinix",

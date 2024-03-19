@@ -1,8 +1,15 @@
 {
   description = "JulesOS NixOS configuration flake";
   inputs = {
-    stable = { url = "github:nixos/nixpkgs/nixos-23.11"; };
-    nixpkgs = { url = "github:nixos/nixpkgs/nixos-unstable"; };
+    stable.url = "github:nixos/nixpkgs?ref=nixos-23.11";
+    nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
+
+    # unfree nixpkgs instance 
+    # ( see: https://zimbatm.com/notes/nixpkgs-unfree && https://github.com/numtide/nixpkgs-unfree )
+    nixpkgs-unfree = {
+      url = "github:numtide/nixpkgs-unfree";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     nix-fast-build = {
       url = "github:Mic92/nix-fast-build";
@@ -45,6 +52,11 @@
       url = "github:suchipi/Bibata_Cursor";
       flake = false;
     };
+
+    # tree-sitter-grammars = {
+    #   url = "github:tree-sitter/tree-sitter-agda";
+    #   flake = false;
+    # };
 
     attic = {
       url = "github:zhaofengli/attic";
@@ -113,6 +125,8 @@
           config = {
             allowUnfree = true;
             permittedUnfreePackages = [ "electron" ];
+            permittedInsecurePackages =
+              [ "nix-2.16.2" "freeimage-unstable-2021-11-01" ];
           };
 
           # Add flake metadata that can be processed by tools like Snowfall Frost.
@@ -127,6 +141,8 @@
     in lib.mkFlake {
       channels-config = {
         allowUnfree = true;
+        permittedInsecurePackages =
+          [ "freeimage-unstable-2021-11-01" "electron-25.9.0" "nix-2.16.2" ];
       };
 
       overlays = with inputs; [
@@ -138,6 +154,12 @@
       ];
 
       # Applied modules to all home-manager instances
+      homes.modules = with inputs;
+        [
+          # my-input.homeModules.my-module
+          # nixvim.homeManagerModules.nixvim
+        ];
+
       homes.users."jules@ishottt" = {
         modules = with inputs; [
           nixvim.homeManagerModules.nixvim

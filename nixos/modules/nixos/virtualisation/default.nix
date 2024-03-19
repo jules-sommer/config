@@ -7,7 +7,7 @@ in {
   options.jules.virtualisation = {
     enable = mkOpt types.bool "Enable virtualisation support" false;
     extraPackages =
-      mkListOf mkOpt types.package "Extra packages to install" [ ];
+      mkListOf (types.nullOr types.package) [ ] "Extra packages to install";
   };
 
   config = mkIf cfg.enable {

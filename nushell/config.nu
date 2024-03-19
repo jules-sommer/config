@@ -736,6 +736,8 @@ alias copy = wl-copy
 alias paste = wl-paste
 alias sync = rsync -avh --progress
 alias mirror_sync = rsync -avzHAX --delete --numeric-ids --info=progress2
+alias cp = sync
+alias tree = dutree
 
 def all_dirs [path: string] {
     ls $path | where type == "dir"

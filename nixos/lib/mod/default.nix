@@ -11,7 +11,6 @@ with lib; rec {
   mkOpt = type: default: description:
     mkOption { inherit type default description; };
 
-
   # Checks if a path exists on the filesystem.
   #
   # ```nix
@@ -29,7 +28,10 @@ with lib; rec {
   #
   #@ Type -> Any -> String
   mkListOf = type: default: description:
-    mkOption { inherit type default description; };
+    mkOption {
+      inherit default description;
+      type = types.listOf type;
+    };
 
   ## Create a NixOS module option without a description.
   ##

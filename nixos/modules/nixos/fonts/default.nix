@@ -1,11 +1,7 @@
 { lib, inputs, config, pkgs, ... }:
 let cfg = config.jules.fonts;
 in with lib; {
-  # Fonts
-  options.jules.graphics = with types; {
-    enable = mkEnableOption "Enable fonts";
-  };
-
+  options.jules.fonts = with types; { enable = mkEnableOption "Enable fonts"; };
   config = mkIf cfg.enable {
     fonts = {
       enableDefaultPackages = true;
