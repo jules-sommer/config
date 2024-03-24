@@ -2,7 +2,7 @@
 let
   inherit (lib) types;
   inherit (lib.xetamine) mkOpt;
-  cfg = config.snowfallorg.example;
+  cfg = config.xeta.system.portals;
 in {
   options.xeta.system.portals = {
     enable = lib.mkEnableOption
