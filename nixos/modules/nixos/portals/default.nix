@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 let
   inherit (lib) types;
-  inherit (lib.xetamine) mkOpt;
+  inherit (lib.xeta) mkOpt;
   cfg = config.xeta.system.portals;
 in {
   options.xeta.system.portals = {
@@ -13,6 +13,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [
+      xdg-utils
       xdg-desktop-portal
       xdg-desktop-portal-gtk
       xdg-desktop-portal-hyprland
