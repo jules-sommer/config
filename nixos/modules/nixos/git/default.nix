@@ -23,5 +23,14 @@ in {
     ];
   in mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ git ] ++ extensions;
+    direnv = {
+      enable = true;
+      nix-direnv.enable = true;
+    };
+    git = {
+      enable = true;
+      userName = "jule-ssommer";
+      userEmail = config.xeta.user.email;
+    };
   };
 }
