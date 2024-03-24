@@ -11,12 +11,27 @@
     };
 
     home-manager = {
-      url = "github:nix-community/home-manager/release-23.11";
+      url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "unstable";
     };
 
     snowfall-lib = {
       url = "github:snowfallorg/lib";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
+    snowfall-flake = {
+      url = "github:snowfallorg/flake";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
+    snowfall-drift = {
+      url = "github:snowfallorg/drift";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
+    snowfall-thaw = {
+      url = "github:snowfallorg/thaw";
       inputs.nixpkgs.follows = "unstable";
     };
 
@@ -65,5 +80,12 @@
           };
         };
       };
-    in lib.mkFlake { };
+    in lib.mkFlake {
+      overlays = with inputs; [
+        fenix.overlays.default
+        snowfall-flake.overlays.default
+        snowfall-thaw.overlays.default
+        snowfall-drift.overlays.default
+      ];
+    };
 }
