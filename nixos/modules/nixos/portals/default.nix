@@ -18,6 +18,12 @@ in {
       xdg-desktop-portal-gtk
       xdg-desktop-portal-hyprland
     ];
+    xdg = {
+      userDirs = {
+        enable = true;
+        createDirectories = true;
+      };
+    };
   };
 }
 
