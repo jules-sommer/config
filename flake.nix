@@ -32,6 +32,12 @@
 
     nix-colors = { url = "github:misterio77/nix-colors"; };
 
+    systems.url = "github:nix-systems/x86_64-linux";
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
+
     hyprland = {
       url = "github:hyprwm/Hyprland";
       inputs.nixpkgs.follows = "unstable";
