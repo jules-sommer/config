@@ -1,8 +1,8 @@
-{ lib, config, ... }:
+{ lib, config, pkgs, ... }:
 let
   inherit (lib) types;
-  inherit (lib.xetamine) mkOpt;
-  cfg = config.snowfallorg.example;
+  inherit (lib.xeta) mkOpt;
+  cfg = config.xeta.system.shells.nushell;
 in {
   options.xeta.system.shells.nushell = {
     enable =
@@ -12,6 +12,7 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = with pkgs; [ nushell alacritty kitty ];
     programs.nushell = {
       configFile.source = "${cfg.rootDir}/_dev/.config/nushell/config.nu";
       envFile.source = "${cfg.rootDir}/_dev/.config/nushell/env.nu";
