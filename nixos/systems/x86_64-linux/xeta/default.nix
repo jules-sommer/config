@@ -1,20 +1,20 @@
 { pkgs, lib, config, inputs, ... }:
 let
   inherit (lib) types;
-  username = config.xeta.user.name;
-  home = config.xeta.user.home;
-  hostname = config.xeta.hostname;
+  inherit (lib.xeta) enabled;
 in {
 
   imports = [ ./xeta-system-config.nix ];
 
   environment.systemPackages = with pkgs; [ floorp ];
 
-  homes.users."${username}@${hostname}" = {
-    modules = with inputs; [
-      nixvim.homeManagerModules.nixvim
-      hyprland.homeManagerModules.default
-    ];
+  xeta = {
+    desktop = {
+      hyprland = {
+        enable = true;
+        theme = "synth-midnight";
+      };
+    };
   };
 
   systemd = {
@@ -65,11 +65,7 @@ in {
     xfconf.enable = true;
     virt-manager.enable = true;
     sway.enable = true;
-    hyprland = {
-      enable = true;
-      package = inputs.hyprland.packages.${pkgs.system}.hyprland;
-      xwayland.enable = true;
-    };
+
     dconf.enable = true;
     steam.gamescopeSession.enable = true;
     steam = {

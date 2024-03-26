@@ -35,6 +35,11 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    fenix = {
+      url = "github:nix-community/fenix";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     xremap-flake = {
       url = "github:xremap/nix-flake";
       inputs.nixpkgs.follows = "unstable";

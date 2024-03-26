@@ -13,7 +13,15 @@ with lib; rec {
   ## ```
   ##
   #@ Type -> Any -> Optional String -> mkOption
-  mkOpt = { type, default, description ? "" }:
+  mkOpt = { type, default ? null, description ? "" }:
+    assert lib.assertMsg (lib.types.isType type)
+      "Expected a type, got ${toString type}";
+    mkOption {
+      type = lib.types.nullOr type;
+      inherit default description;
+    };
+
+  mkOpt'' = type: default: description:
     mkOption { inherit type default description; };
 
   # Checks if a path exists on the filesystem.
