@@ -1,16 +1,17 @@
 { config, lib, pkgs, ... }:
 let
-  inherit (lib) mkOpt types mkIf;
+  inherit (lib) types mkIf;
+  inherit (lib.xeta) mkOpt;
   cfg = config.xeta.system.nushell.config;
 in {
   options.xeta.system.nushell.config = {
-    enable = mkOpt (types.bool) true
+    enable = mkOpt (types.bool) false
       "Enable nushell config options, requires nushell to be installed.";
   };
 
   config = mkIf cfg.enable {
 
-    "$env.config" = {
+    programs.nushell.settings = {
       show_banner = false;
       ls = {
         use_ls_colors = true;

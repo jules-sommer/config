@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
 let
-  inherit (lib) types mkOpt mkIf;
-  inherit (lib.xeta) mkEnableOption;
+  inherit (lib) types mkIf mkEnableOption;
+  inherit (lib.xeta) mkOpt;
   cfg = config.xeta.system.git;
 in {
   options.xeta.system.git = {

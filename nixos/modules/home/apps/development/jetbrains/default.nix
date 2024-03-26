@@ -1,7 +1,7 @@
 { lib, config, pkgs, ... }:
-let cfg = config.xeta.apps.development.jetbrains;
+let cfg = config.xeta.home.apps.development.jetbrains;
 in {
-  options.xeta.apps.development.jetbrains = {
+  options.xeta.home.apps.development.jetbrains = {
     enable = lib.mkEnableOption "Enable JetBrains IDEs";
     edition = lib.mkOption {
       type = lib.types.enum [ "community" "ultimate" ];

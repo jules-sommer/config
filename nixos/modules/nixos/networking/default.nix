@@ -8,9 +8,9 @@ in {
     enable = lib.mkEnableOption "Enable networking tweaks";
   };
 
-  isHyprland = config.users.users.xeta.home.windowManager.hyprland;
-
   config = lib.mkIf cfg.enable {
+
+    networking.hostName = config.xeta.hostname;
     # NETWORKING TWEAKS
     # (source: https://github.com/nh2/nixos-configs/blob/master/configuration.nix)
 

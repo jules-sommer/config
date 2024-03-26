@@ -13,16 +13,20 @@ with lib; rec {
   ## ```
   ##
   #@ Type -> Any -> Optional String -> mkOption
-  mkOpt = { type, default ? null, description ? "" }:
-    assert lib.assertMsg (lib.types.isType type)
-      "Expected a type, got ${toString type}";
-    mkOption {
-      type = lib.types.nullOr type;
-      inherit default description;
-    };
+  mkOpt = type: default: description:
+    lib.mkOption { inherit type default description; };
 
   mkOpt'' = type: default: description:
     mkOption { inherit type default description; };
+
+  ## Create a NixOS module option without a description.
+  ##
+  ## ```nix
+  ## lib.mkOpt' nixpkgs.lib.types.str "My default"
+  ## ```
+  ##
+  #@ Type -> Any -> String
+  mkOpt' = type: default: mkOpt type default null;
 
   # Checks if a path exists on the filesystem.
   #
@@ -81,15 +85,6 @@ with lib; rec {
       in acc
       + (if pos == null then toString c else substring (pos) (1) uppercase)) ""
     s;
-
-  ## Create a NixOS module option without a description.
-  ##
-  ## ```nix
-  ## lib.mkOpt' nixpkgs.lib.types.str "My default"
-  ## ```
-  ##
-  #@ Type -> Any -> String
-  mkOpt' = type: default: mkOpt type default null;
 
   ## Create a boolean NixOS module option.
   ##

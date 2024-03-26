@@ -13,6 +13,7 @@ in {
 
   config = lib.mkIf cfg.enable {
     environment.systemPackages = with pkgs; [ nushell alacritty kitty ];
+    users.defaultUserShell = pkgs.nushell;
     programs.nushell = {
       configFile.source = "${cfg.rootDir}/_dev/.config/nushell/config.nu";
       envFile.source = "${cfg.rootDir}/_dev/.config/nushell/env.nu";

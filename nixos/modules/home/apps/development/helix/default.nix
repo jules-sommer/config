@@ -1,10 +1,10 @@
 { config, lib, inputs, system, pkgs, ... }:
 let
   inherit (lib) mkOpt types mkIf;
-  cfg = config.xeta.apps.development.helix;
+  cfg = config.xeta.home.apps.development.helix;
 in {
-  options.xeta.apps.development.helix = {
-    enable = mkOpt (types.bool) true "Enable Helix, vim-like TUI text editor";
+  options.xeta.home.apps.development.helix = {
+    enable = lib.mkEnableOption "Enable Helix, vim-like TUI text editor";
   };
 
   config = mkIf cfg.enable {
